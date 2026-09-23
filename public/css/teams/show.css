@@ -1,0 +1,164 @@
+
+        .team-details-wrap {
+            max-width: 1140px;
+            margin: 0 auto;
+            padding: 42px 28px;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .details-card {
+            position: relative;
+            background: var(--paper);
+            border: 1.5px solid var(--ink);
+            padding: 24px;
+            box-shadow: 5px 5px 0 var(--ink);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+            padding-bottom: 12px;
+            border-bottom: 1.5px solid var(--rule);
+        }
+
+        .card-title {
+            font-family: var(--font-display);
+            font-size: 0.82rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--ink);
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 12px 0;
+            border-bottom: 1px dashed var(--rule);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-family: var(--font-display);
+            font-size: 0.78rem;
+            color: var(--pencil);
+            letter-spacing: 0.04em;
+        }
+
+        .info-value {
+            font-family: var(--font-display);
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--ink);
+        }
+
+        .code-box {
+            font-family: var(--font-mono);
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            padding: 8px 12px;
+            background: var(--yellow);
+            border: 2px solid var(--ink);
+            color: var(--ink);
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .member-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .member-item {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--rule);
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 14px;
+            align-items: center;
+            transition: background 0.15s ease;
+        }
+
+        .member-item:hover {
+            background: rgba(31, 63, 168, 0.03);
+        }
+
+        .member-item:last-child {
+            border-bottom: none;
+        }
+
+        .member-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid var(--ink);
+            background: var(--blue);
+            display: grid;
+            place-items: center;
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--paper);
+            text-transform: uppercase;
+        }
+
+        .member-name {
+            font-family: var(--font-display);
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--ink);
+        }
+
+        .role-select {
+            font-family: var(--font-display);
+            font-size: 0.75rem;
+            padding: 6px 10px;
+            border: 1.5px solid var(--ink);
+            background: var(--paper);
+            color: var(--ink);
+            cursor: pointer;
+            outline: none;
+        }
+
+        .role-select:focus {
+            border-color: var(--blue);
+        }
+
+        .btn-leave {
+            padding: 10px 16px;
+            background: #ff4d4f;
+            color: white;
+            border: 1.5px solid var(--ink);
+            font-family: var(--font-display);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            box-shadow: 2px 2px 0 var(--ink);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-leave:hover {
+            background: #d9363e;
+            transform: translate(-1px, -1px);
+            box-shadow: 3px 3px 0 var(--ink);
+        }
+

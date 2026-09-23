@@ -1,0 +1,581 @@
+/* ==========================================================================
+   FlowSchedule · Ayuda y Soporte
+   Guardar en: public/css/ayuda.css
+   Nada de esta página es "sticky" ni "fixed": todo se desplaza con el scroll.
+   ========================================================================== */
+
+html {
+    scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+}
+
+details > summary::-webkit-details-marker {
+    display: none;
+}
+
+/* --------------------------------------------------------------------------
+   Variables
+   Usan tus variables globales si existen y, si no, un valor de respaldo.
+   -------------------------------------------------------------------------- */
+.help-page {
+    --h-ink: var(--ink, #1a1d24);
+    --h-paper: var(--paper, #fbfaf6);
+    --h-pencil: var(--pencil, #4b5060);
+    --h-blue: var(--blue, #2b59c3);
+    --h-font-sans: var(--font-sans, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
+    --h-font-display: var(--font-display, inherit);
+
+    /* Fondo: idéntico al original (papel cuadriculado) */
+    min-height: 100vh;
+    background-color: var(--h-paper);
+    background-image:
+        repeating-linear-gradient(to right, rgba(26, 29, 36, 0.07) 1px, transparent 1px),
+        repeating-linear-gradient(to bottom, rgba(26, 29, 36, 0.07) 1px, transparent 1px);
+    background-size: 28px 28px;
+    color: var(--h-ink);
+    font-family: var(--h-font-sans);
+}
+
+.help-page *,
+.help-page *::before,
+.help-page *::after {
+    box-sizing: border-box;
+}
+
+/* :where() mantiene especificidad 0 para no pisar los márgenes de las clases */
+:where(.help-page) :where(h1, h2, h3, p, ul, ol, dl, dd) {
+    margin: 0;
+}
+
+:where(.help-page) :where(ul, ol) {
+    padding: 0;
+    list-style: none;
+}
+
+/* Foco visible para teclado */
+.help-page a:focus-visible,
+.help-page summary:focus-visible {
+    outline: 2px solid var(--h-blue);
+    outline-offset: 2px;
+}
+
+.help-page summary:focus-visible {
+    outline-offset: -2px;
+}
+
+/* --------------------------------------------------------------------------
+   Estructura general
+   -------------------------------------------------------------------------- */
+.help-container {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: 3rem 1rem;
+}
+
+.help-box {
+    position: relative;
+    z-index: 0;
+    background: var(--h-paper);
+    border: 2px solid var(--h-ink);
+    box-shadow: 4px 4px 0 var(--h-ink);
+}
+
+.help-section {
+    scroll-margin-top: 2rem;
+}
+
+.help-section__head {
+    padding: 1.5rem;
+}
+
+.help-section__title {
+    margin-bottom: 0.5rem;
+    font-family: var(--h-font-display);
+    font-size: 1.75rem;
+    line-height: 1.2;
+    color: var(--h-ink);
+}
+
+.help-section__lead {
+    max-width: 62ch;
+    font-size: 1.0625rem;
+    line-height: 1.7;
+    color: var(--h-pencil);
+}
+
+@media (min-width: 640px) {
+    .help-container {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+
+    .help-section__head {
+        padding: 2rem 2.5rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .help-container {
+        gap: 4rem;
+        padding: 5rem 2rem;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   Botones
+   -------------------------------------------------------------------------- */
+.help-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border: 2px solid var(--h-ink);
+    background: var(--h-paper);
+    color: var(--h-ink);
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.help-btn:hover {
+    background: var(--h-ink);
+    color: var(--h-paper);
+}
+
+.help-btn--primary {
+    background: var(--h-ink);
+    color: var(--h-paper);
+}
+
+.help-btn--primary:hover {
+    background: var(--h-paper);
+    color: var(--h-ink);
+}
+
+/* --------------------------------------------------------------------------
+   Cabecera
+   -------------------------------------------------------------------------- */
+.help-hero__body {
+    padding: 1.5rem;
+}
+
+.help-hero__title {
+    margin-bottom: 1.25rem;
+    font-family: var(--h-font-display);
+    font-size: clamp(2.25rem, 6vw, 4rem);
+    line-height: 1.05;
+    color: var(--h-ink);
+}
+
+.help-hero__lead {
+    max-width: 58ch;
+    font-size: 1.125rem;
+    line-height: 1.7;
+    color: var(--h-pencil);
+}
+
+.help-hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.help-jump {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem 1.5rem;
+    padding: 1rem 1.5rem;
+    border-top: 2px solid var(--h-ink);
+    font-size: 0.9375rem;
+}
+
+.help-jump__label {
+    font-weight: 600;
+    color: var(--h-ink);
+}
+
+.help-jump__link {
+    padding: 0.25rem 0;
+    color: var(--h-ink);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+}
+
+.help-jump__link:hover {
+    background: var(--h-ink);
+    color: var(--h-paper);
+}
+
+@media (min-width: 640px) {
+    .help-hero__body {
+        padding: 2.5rem;
+    }
+
+    .help-jump {
+        padding-left: 2.5rem;
+        padding-right: 2.5rem;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   Qué es FlowSchedule
+   -------------------------------------------------------------------------- */
+.help-about {
+    display: grid;
+    gap: 1.5rem;
+    padding: 0 1.5rem 1.5rem;
+    line-height: 1.7;
+}
+
+.help-about__main {
+    font-size: 1.0625rem;
+    color: var(--h-ink);
+}
+
+.help-about__side {
+    font-size: 1.0625rem;
+    color: var(--h-pencil);
+}
+
+@media (min-width: 640px) {
+    .help-about {
+        padding: 0 2.5rem 2.5rem;
+    }
+}
+
+@media (min-width: 768px) {
+    .help-about {
+        grid-template-columns: 1fr 1fr;
+        gap: 2.5rem;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   Cómo funciona (pasos)
+   -------------------------------------------------------------------------- */
+.help-steps {
+    display: grid;
+    border-top: 2px solid var(--h-ink);
+}
+
+.help-step {
+    padding: 1.5rem;
+}
+
+.help-step + .help-step {
+    border-top: 2px solid var(--h-ink);
+}
+
+.help-step__num {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    margin-bottom: 1rem;
+    background: var(--h-ink);
+    color: var(--h-paper);
+    font-family: var(--h-font-display);
+    font-weight: 600;
+    line-height: 1;
+}
+
+.help-step__title {
+    margin-bottom: 0.5rem;
+    font-family: var(--h-font-display);
+    font-size: 1.1875rem;
+    color: var(--h-ink);
+}
+
+.help-step__text {
+    font-size: 0.9375rem;
+    line-height: 1.7;
+    color: var(--h-pencil);
+}
+
+.help-step__text + .help-step__list {
+    margin-top: 0.75rem;
+}
+
+.help-step__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--h-pencil);
+}
+
+.help-step__list strong {
+    color: var(--h-ink);
+}
+
+@media (min-width: 768px) {
+    .help-steps {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .help-step {
+        padding: 2rem;
+    }
+
+    .help-step + .help-step {
+        border-top: 0;
+        border-left: 2px solid var(--h-ink);
+    }
+}
+
+/* --------------------------------------------------------------------------
+   Características
+   -------------------------------------------------------------------------- */
+.help-features {
+    display: grid;
+    gap: 2px; /* el fondo tinta se ve como línea divisoria */
+    background: var(--h-ink);
+    border-top: 2px solid var(--h-ink);
+}
+
+.help-feature {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: var(--h-paper);
+}
+
+.help-feature__icon {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 2px solid var(--h-ink);
+    color: var(--h-ink);
+}
+
+.help-feature__icon svg {
+    width: 1.375rem;
+    height: 1.375rem;
+}
+
+.help-feature__title {
+    margin-bottom: 0.25rem;
+    font-family: var(--h-font-display);
+    font-size: 1.125rem;
+    color: var(--h-ink);
+}
+
+.help-feature__text {
+    font-size: 0.9375rem;
+    line-height: 1.7;
+    color: var(--h-pencil);
+}
+
+@media (min-width: 640px) {
+    .help-features {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .help-features {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Consejo */
+.help-tip {
+    margin-top: 2rem;
+    padding: 1.25rem 1.5rem;
+    background: var(--h-paper);
+    border: 2px solid var(--h-ink);
+    box-shadow: 4px 4px 0 var(--h-ink);
+    color: var(--h-ink);
+}
+
+.help-tip__title {
+    margin-bottom: 0.25rem;
+    font-family: var(--h-font-display);
+    font-size: 1.0625rem;
+}
+
+.help-tip__text {
+    max-width: 72ch;
+    font-size: 0.9375rem;
+    line-height: 1.7;
+}
+
+/* --------------------------------------------------------------------------
+   Preguntas frecuentes
+   -------------------------------------------------------------------------- */
+.help-faq {
+    border-top: 2px solid var(--h-ink);
+}
+
+.help-faq__item + .help-faq__item {
+    border-top: 2px solid var(--h-ink);
+}
+
+.help-faq__question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.25rem 1.5rem;
+    color: var(--h-ink);
+    font-weight: 600;
+    list-style: none;
+    cursor: pointer;
+}
+
+.help-faq__question:hover {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+}
+
+.help-faq__chevron {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
+    transition: transform 0.2s;
+}
+
+.help-faq__item[open] .help-faq__chevron {
+    transform: rotate(180deg);
+}
+
+.help-faq__answer {
+    max-width: 68ch;
+    padding: 0 1.5rem 1.5rem;
+    font-size: 0.9375rem;
+    line-height: 1.7;
+    color: var(--h-pencil);
+}
+
+@media (min-width: 640px) {
+    .help-faq__question {
+        padding-left: 2.5rem;
+        padding-right: 2.5rem;
+    }
+
+    .help-faq__answer {
+        padding-left: 2.5rem;
+        padding-right: 2.5rem;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   Contacto (bloque oscuro)
+   -------------------------------------------------------------------------- */
+.help-contact {
+    display: grid;
+    gap: 2rem;
+    padding: 1.5rem;
+    border: 2px solid var(--h-ink);
+    background: var(--h-paper);
+    color: var(--h-ink);
+}
+
+.help-contact__title {
+    margin-bottom: 0.75rem;
+    font-family: var(--h-font-display);
+    font-size: 1.75rem;
+    line-height: 1.2;
+}
+
+.help-contact__text {
+    max-width: 46ch;
+    line-height: 1.7;
+}
+
+.help-contact__list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.help-contact__item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.help-contact__icon {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 2px solid var(--h-paper);
+}
+
+.help-contact__icon svg {
+    width: 1.375rem;
+    height: 1.375rem;
+}
+
+.help-contact__label {
+    font-size: 0.875rem;
+    opacity: 0.8;
+}
+
+.help-contact__value {
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.help-contact__link {
+    color: var(--h-ink);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+}
+
+.help-contact__link:hover {
+    background: var(--h-paper);
+    color: var(--h-ink);
+}
+
+/* Sobre fondo oscuro el foco va en color papel */
+.help-contact a:focus-visible {
+    outline-color: var(--h-paper);
+}
+
+@media (min-width: 640px) {
+    .help-contact {
+        padding: 2.5rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .help-contact {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+        gap: 3rem;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   Documentos legales
+   -------------------------------------------------------------------------- */
+.help-legal {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+}
+
+.help-legal__label {
+    font-weight: 600;
+    color: var(--h-ink);
+}

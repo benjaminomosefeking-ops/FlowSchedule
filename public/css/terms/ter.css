@@ -1,0 +1,509 @@
+/* ==========================================================================
+   FlowSchedule · Términos y Condiciones
+   Guardar en: public/css/terminos.css
+   ========================================================================== */
+
+html {
+    scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   Variables
+   Usan tus variables globales si existen (--ink, --paper, --pencil, --blue)
+   y, si no, un valor de respaldo. Ajusta los respaldos a tus colores reales.
+   -------------------------------------------------------------------------- */
+.terms-page {
+    --t-ink: var(--ink, #1a1d24);
+    --t-paper: var(--paper, #fbfaf6);
+    --t-pencil: var(--pencil, #4b5060);
+    --t-blue: var(--blue, #2b59c3);
+    --t-font-sans: var(--font-sans, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
+    --t-font-display: var(--font-display, inherit);
+
+    /* Fondo: idéntico al original (papel cuadriculado) */
+    min-height: 100vh;
+    background-color: var(--t-paper);
+    background-image:
+        repeating-linear-gradient(to right, rgba(26, 29, 36, 0.07) 1px, transparent 1px),
+        repeating-linear-gradient(to bottom, rgba(26, 29, 36, 0.07) 1px, transparent 1px);
+    background-size: 28px 28px;
+    color: var(--t-ink);
+    font-family: var(--t-font-sans);
+}
+
+.terms-page *,
+.terms-page *::before,
+.terms-page *::after {
+    box-sizing: border-box;
+}
+
+/* :where() mantiene especificidad 0 para que no pise los márgenes de las clases */
+:where(.terms-page) :where(h1, h2, p, dl, dd, ul) {
+    margin: 0;
+}
+
+:where(.terms-page) ul {
+    padding: 0;
+    list-style: none;
+}
+
+/* Foco visible para teclado */
+.terms-page a:focus-visible,
+.terms-page button:focus-visible,
+.terms-page summary:focus-visible {
+    outline: 2px solid var(--t-blue);
+    outline-offset: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   Estructura general
+   -------------------------------------------------------------------------- */
+.terms-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: 3rem 1rem;
+}
+
+.terms-box {
+    position: relative;   
+    z-index: 0;           
+    background: var(--t-paper);
+    border: 2px solid var(--t-ink);
+    box-shadow: 4px 4px 0 var(--t-ink);
+    top: auto;                      
+}
+
+.terms-layout {
+    display: grid;
+    gap: 2rem;
+    align-items: start;
+}
+
+.terms-main {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    min-width: 0;
+}
+
+@media (min-width: 640px) {
+    .terms-container {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .terms-container {
+        gap: 3.5rem;
+        padding: 5rem 2rem;
+    }
+
+    .terms-layout {
+        grid-template-columns: 260px minmax(0, 1fr);
+        gap: 3rem;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   Cabecera
+   -------------------------------------------------------------------------- */
+.terms-hero__body {
+    padding: 1.5rem;
+}
+
+.terms-badge {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+    padding: 0.25rem 0.75rem;
+    border: 2px solid var(--t-ink);
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.terms-title {
+    margin-bottom: 1.25rem;
+    font-family: var(--t-font-display);
+    font-size: clamp(2.25rem, 6vw, 4rem);
+    line-height: 1.05;
+    color: var(--t-ink);
+}
+
+.terms-lead {
+    max-width: 62ch;
+    font-size: 1.125rem;
+    line-height: 1.7;
+    color: var(--t-pencil);
+}
+
+@media (min-width: 640px) {
+    .terms-hero__body {
+        padding: 2.5rem;
+    }
+}
+
+/* Botones (imprimir y volver) */
+.terms-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border: 2px solid var(--t-ink);
+    background: var(--t-paper);
+    color: var(--t-ink);
+    font: inherit;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.terms-btn:hover {
+    background: var(--t-ink);
+    color: var(--t-paper);
+}
+
+.terms-btn--print {
+    margin-top: 2rem;
+    padding: 0.625rem 1.25rem;
+}
+
+.terms-icon {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+}
+
+/* Resumen rápido */
+.terms-summary {
+    border-top: 2px solid var(--t-ink);
+}
+
+.terms-summary__grid {
+    display: grid;
+}
+
+.terms-summary__item {
+    padding: 1.5rem;
+}
+
+.terms-summary__item + .terms-summary__item {
+    border-top: 2px solid var(--t-ink);
+}
+
+.terms-summary__title {
+    margin-bottom: 0.25rem;
+    font-family: var(--t-font-display);
+    font-size: 1.125rem;
+    color: var(--t-ink);
+}
+
+.terms-summary__text {
+    font-size: 0.9375rem;
+    line-height: 1.7;
+    color: var(--t-pencil);
+}
+
+.terms-summary__note {
+    padding: 0.75rem 1.5rem;
+    border-top: 2px solid var(--t-ink);
+    font-size: 0.875rem;
+    color: var(--t-pencil);
+}
+
+@media (min-width: 640px) {
+    .terms-summary__grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .terms-summary__item + .terms-summary__item {
+        border-top: 0;
+        border-left: 2px solid var(--t-ink);
+    }
+}
+
+/* --------------------------------------------------------------------------
+   Índice
+   -------------------------------------------------------------------------- */
+.terms-toc-mobile {
+    display: block;
+}
+
+.terms-toc-desktop {
+    display: none;
+}
+
+.terms-toc-mobile__summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    font-family: var(--t-font-display);
+    font-size: 1.125rem;
+    color: var(--t-ink);
+    list-style: none;
+    cursor: pointer;
+}
+
+.terms-toc-mobile__summary::-webkit-details-marker {
+    display: none;
+}
+
+.terms-chevron {
+    width: 1.25rem;
+    height: 1.25rem;
+    transition: transform 0.2s;
+}
+
+.terms-toc-mobile[open] .terms-chevron {
+    transform: rotate(180deg);
+}
+
+.terms-toc-mobile__nav {
+    padding: 0.5rem;
+    border-top: 2px solid var(--t-ink);
+}
+
+.terms-toc-desktop__nav {
+    padding: 0.5rem;
+}
+.terms-toc__heading {
+    padding: 0.5rem 0.75rem 0.75rem;
+    font-family: var(--t-font-display);
+    font-size: 1.125rem;
+    color: var(--t-ink);
+}
+
+.terms-toc__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.terms-toc__link {
+    display: grid;
+    grid-template-columns: 1.25rem 1fr;   
+    align-items: start;
+    gap: 0.5rem;
+    padding: 0.4rem 0.5rem;
+    color: var(--t-ink);
+    font-size: 0.9375rem;
+    font-weight: 400;
+    line-height: 1.3;
+    text-decoration: none;
+}
+
+.terms-toc__link:hover {
+    text-decoration: underline;
+}
+
+.terms-toc__num {
+    width: auto;               
+    text-align: right;      
+    font-variant-numeric: tabular-nums;   
+    font-weight: 600;
+}
+
+/* Marcador cuadrado para "Contacto" (sustituye al punto medio "·") */
+.terms-toc__num--mark::before {
+    content: "";
+    display: block;
+    width: 0.5rem;
+    height: 0.5rem;
+    margin: 0.35rem 0 0 auto;   
+    background: currentColor;
+}
+
+/* Sección activa (la marca el script con aria-current) */
+.terms-toc__link[aria-current="true"] {
+    background: var(--t-ink);
+    color: var(--t-paper);
+}
+
+@media (min-width: 1024px) {
+    .terms-toc-mobile {
+        display: none;
+    }
+
+    /* Sin position: sticky -> el índice se desplaza con la página */
+    .terms-toc-desktop {
+        display: block;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   Cláusulas
+   -------------------------------------------------------------------------- */
+.terms-section {
+    padding: 1.5rem;
+    scroll-margin-top: 6rem;
+}
+
+.terms-article > .terms-section + .terms-section {
+    border-top: 2px solid var(--t-ink);
+}
+
+.terms-section__title {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+    font-family: var(--t-font-display);
+    font-size: 1.5rem;
+    line-height: 1.25;
+    color: var(--t-ink);
+}
+
+.terms-section__title-text {
+    padding-top: 0.25rem;
+}
+
+.terms-num {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 2.5rem;
+    height: 2.5rem;
+    background: var(--t-ink);
+    color: var(--t-paper);
+    font-family: var(--t-font-sans);
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.terms-section__body {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-width: 68ch;
+    font-size: 1.0625rem;
+    line-height: 1.7;
+    color: var(--t-pencil);
+}
+
+.terms-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.terms-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.terms-bullet {
+    flex-shrink: 0;
+    width: 0.5rem;
+    height: 0.5rem;
+    margin-top: 0.6rem;
+    background: var(--t-ink);
+}
+
+@media (min-width: 640px) {
+    .terms-section {
+        padding: 2.5rem;
+    }
+
+    .terms-section__body {
+        padding-left: 3.5rem;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   Contacto
+   -------------------------------------------------------------------------- */
+.terms-contact__head {
+    padding: 1.5rem;
+}
+
+.terms-contact__title {
+    margin-bottom: 0.5rem;
+    font-family: var(--t-font-display);
+    font-size: 1.5rem;
+    line-height: 1.25;
+    color: var(--t-ink);
+}
+
+.terms-contact__text {
+    max-width: 62ch;
+    font-size: 1.0625rem;
+    line-height: 1.7;
+    color: var(--t-pencil);
+}
+
+.terms-contact__list {
+    display: grid;
+    border-top: 2px solid var(--t-ink);
+}
+
+.terms-contact__item {
+    padding: 1.5rem;
+}
+
+.terms-contact__item + .terms-contact__item {
+    border-top: 2px solid var(--t-ink);
+}
+
+.terms-contact__label {
+    margin-bottom: 0.25rem;
+    font-size: 0.875rem;
+    color: var(--t-pencil);
+}
+
+.terms-contact__value {
+    font-weight: 600;
+    color: var(--t-ink);
+    overflow-wrap: anywhere;
+}
+
+.terms-contact__link {
+    color: var(--t-ink);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+}
+
+.terms-contact__link:hover {
+    background: var(--t-ink);
+    color: var(--t-paper);
+}
+
+@media (min-width: 640px) {
+    .terms-contact__head {
+        padding: 2.5rem;
+    }
+
+    .terms-contact__list {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .terms-contact__item + .terms-contact__item {
+        border-top: 0;
+        border-left: 2px solid var(--t-ink);
+    }
+}
+
+/* --------------------------------------------------------------------------
+   Impresión
+   -------------------------------------------------------------------------- */
+@media print {
+    .terms-noprint {
+        display: none !important;
+    }
+
+    .terms-box {
+        box-shadow: none;
+    }
+}

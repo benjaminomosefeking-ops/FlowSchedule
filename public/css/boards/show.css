@@ -1,0 +1,608 @@
+:root {
+    --paper: #F2EBDC;
+    --ink: #1A1D24;
+    --blue: #1F3FA8;
+    --accent: #E63946;
+    --highlight: #F1C761;
+
+    /* Colores auxiliares */
+    --border: rgba(26, 29, 36, 0.12);
+    --ink-soft: rgba(26, 29, 36, 0.65);
+
+    --font-display: 'IBM Plex Mono', monospace;
+    --font-body: 'Inter', sans-serif;
+}
+
+.nav-auth-link {
+    font-family: var(--font-display);
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--ink-soft);
+}
+
+.nav-auth-link:hover {
+    color: var(--blue);
+}
+
+/* ==========================================
+   RESET
+   ========================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* ==========================================
+   BODY
+   ========================================== */
+
+body {
+    font-family: var(--font-body);
+    background: var(--paper);
+    overflow-x: hidden;
+    color: var(--ink);
+}
+
+/* ==========================================
+   BOARD PAGE
+   ========================================== */
+
+.board-page {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+/* ==========================================
+   HEADER
+   ========================================== */
+
+.board-header {
+    position: relative;
+    height: 72px;
+
+    background-color: var(--paper);
+
+    border-bottom: 3px solid var(--ink);
+
+    z-index: 999998;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 24px;
+
+    /* Regla técnica inferior */
+    background-image: linear-gradient(
+        to right,
+        var(--ink) 1px,
+        transparent 1px
+    );
+
+    background-size: 10px 2px;
+    background-repeat: repeat-x;
+    background-position: bottom;
+}
+
+/* ==========================================
+   BOARD TITLE
+   ========================================== */
+
+.board-title {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.board-title h1 {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 700;
+
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+
+    color: var(--ink);
+
+    position: relative;
+}
+
+/* ==========================================
+   TEAM CODE
+   ========================================== */
+
+.team-code {
+    font-family: var(--font-display);
+    font-size: 0.7rem;
+    font-weight: 800;
+
+    letter-spacing: 0.1em;
+
+    color: var(--ink);
+
+    padding: 4px 8px;
+
+    background: var(--highlight);
+
+    border: 2px solid var(--ink);
+    border-radius: 0;
+
+    box-shadow: 2px 2px 0 var(--ink);
+
+    text-transform: uppercase;
+}
+
+/* ==========================================
+   BOARD ACTIONS
+   ========================================== */
+
+.board-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.board-status {
+    font-family: var(--font-display);
+    font-size: 0.7rem;
+
+    text-transform: uppercase;
+
+    opacity: 0.6;
+
+    border-right: 2px solid var(--ink);
+
+    padding-right: 16px;
+    margin-right: 8px;
+}
+
+/* ==========================================
+   BUTTONS
+   ========================================== */
+
+.board-btn {
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+    padding: 8px 16px;
+
+    border: 2px solid var(--ink);
+
+    background: var(--paper);
+    color: var(--ink);
+
+    cursor: pointer;
+
+    transition: all 0.1s ease;
+
+    text-decoration: none;
+
+    display: inline-flex;
+    align-items: center;
+
+    gap: 8px;
+
+    box-shadow: 3px 3px 0 var(--ink);
+
+    position: relative;
+
+    z-index: 10;
+}
+
+.board-btn:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0 var(--ink);
+}
+
+.board-btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: 0 0 0 var(--ink);
+}
+
+.board-btn.primary {
+    background: var(--blue);
+    color: var(--paper);
+
+    border-color: var(--ink);
+}
+
+.board-btn.primary:hover {
+    background: #2a4dbd;
+}
+
+.board-btn.secondary {
+    background: transparent;
+}
+
+/* ==========================================
+   PIZARRA / BOARD CONTAINER
+   ========================================== */
+
+.board-container {
+    position: relative;
+
+    flex: 1;
+
+    min-height: 860px;
+
+    cursor: default;
+
+    background: var(--paper);
+
+    overflow: hidden;
+
+    /* Aísla los z-index internos */
+    isolation: isolate;
+}
+
+/* ==========================================
+   FONDO DE CUADRÍCULA
+   ========================================== */
+
+.board-container::before {
+    content: "";
+
+    position: absolute;
+
+    inset: -12px;
+
+    /*
+     * Cuadrícula grande
+     */
+    background-image:
+        linear-gradient(
+            to right,
+            rgba(26, 29, 36, 0.09) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            to bottom,
+            rgba(26, 29, 36, 0.09) 1px,
+            transparent 1px
+        );
+
+    background-size: 80px 80px;
+
+    /*
+     * Hace la cuadrícula muy sutil
+     */
+    opacity: 0.7;
+
+    /*
+     * Pequeño desenfoque.
+     * No afecta a los dibujos porque solo
+     * se aplica al pseudo-elemento.
+     */
+    filter: blur(0.7px);
+
+    pointer-events: none;
+
+    z-index: 0;
+}
+
+/* ==========================================
+   EXCALIDRAW ROOT
+   ========================================== */
+
+#excalidraw-root {
+    width: 100%;
+    height: 860px;
+
+    position: relative;
+
+    z-index: 1;
+}
+
+/* ==========================================
+   TOOLBAR
+   ========================================== */
+
+.ebx-toolbar {
+    position: absolute;
+
+    left: 50%;
+    bottom: 22px;
+
+    transform: translateX(-50%);
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 6px;
+
+    padding: 8px;
+
+    /*
+     * Fondo ligeramente transparente
+     */
+    background: rgba(242, 235, 220, 0.94);
+
+    /*
+     * Borde
+     */
+    border: 2px solid var(--ink);
+
+    border-radius: 12px;
+
+    /*
+     * Sombra estilo FlowSchedule
+     */
+    box-shadow:
+        4px 4px 0 rgba(26, 29, 36, 0.9);
+
+    /*
+     * MUY importante:
+     * la toolbar queda por encima del canvas
+     */
+    z-index: 10000;
+
+    /*
+     * Evita que el ancho rompa la pantalla
+     */
+    max-width: calc(100% - 32px);
+
+    /*
+     * Scroll horizontal si no caben los botones
+     */
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    /*
+     * Ocultar scrollbar
+     */
+    scrollbar-width: none;
+
+    /*
+     * Permite hacer clic en los botones
+     */
+    pointer-events: auto;
+
+    /*
+     * Efecto ligeramente acristalado
+     */
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+
+    /*
+     * Evita seleccionar cosas accidentalmente
+     */
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* Ocultar scrollbar Chrome/Safari */
+
+.ebx-toolbar::-webkit-scrollbar {
+    display: none;
+}
+
+/* Los elementos de la toolbar no se encogen */
+
+.ebx-toolbar > * {
+    flex-shrink: 0;
+}
+
+/* ==========================================
+   BOTONES DE LA TOOLBAR
+   ========================================== */
+
+.ebx-toolbar button {
+    position: relative;
+
+    z-index: 10001;
+
+    pointer-events: auto;
+
+    flex-shrink: 0;
+}
+
+/* ==========================================
+   POPUPS DE EXCALIDRAW
+   ========================================== */
+
+.ebx-popup {
+    max-width: calc(100% - 24px);
+
+    z-index: 11000;
+}
+
+/* ==========================================
+   EXCALIDRAW
+   ========================================== */
+
+.excalidraw {
+    /*
+     * Queremos ver nuestra cuadrícula
+     * detrás de Excalidraw.
+     */
+    background: transparent !important;
+
+    position: relative;
+
+    z-index: 1;
+}
+
+.excalidraw .canvas {
+    background: transparent !important;
+}
+
+/* ==========================================
+   ISLANDS DE EXCALIDRAW
+   ========================================== */
+
+.excalidraw .Island {
+    box-shadow:
+        4px 4px 0 var(--ink) !important;
+
+    border: 2px solid var(--ink) !important;
+
+    border-radius: 0 !important;
+}
+
+/* ==========================================
+   RESPONSIVE
+   ========================================== */
+
+@media (max-width: 760px) {
+
+    /* ------------------------------
+       HEADER
+       ------------------------------ */
+
+    .board-header {
+        height: auto;
+
+        min-height: 72px;
+
+        padding: 14px 16px;
+
+        gap: 12px;
+
+        flex-wrap: wrap;
+    }
+
+    .board-title,
+    .board-actions {
+        flex-wrap: wrap;
+    }
+
+    .board-title {
+        gap: 12px;
+    }
+
+    /* ------------------------------
+       BOARD
+       ------------------------------ */
+
+    #excalidraw-root,
+    .board-container {
+        min-height: 680px;
+
+        height: 680px;
+    }
+
+    /* ------------------------------
+       TOOLBAR MOBILE
+       ------------------------------ */
+
+    .ebx-toolbar {
+        position: absolute;
+
+        left: 12px !important;
+        right: 12px !important;
+
+        bottom: max(
+            10px,
+            env(safe-area-inset-bottom)
+        ) !important;
+
+        transform: none !important;
+
+        width: auto;
+
+        max-width: none !important;
+
+        /*
+         * Scroll horizontal
+         */
+        overflow-x: auto;
+        overflow-y: hidden;
+
+        /*
+         * Todo en una línea
+         */
+        flex-wrap: nowrap !important;
+
+        justify-content: flex-start;
+
+        gap: 4px !important;
+
+        padding: 6px !important;
+
+        border-radius: 12px !important;
+
+        /*
+         * Permitir deslizar la toolbar
+         */
+        touch-action: pan-x;
+
+        -webkit-overflow-scrolling: touch;
+
+        /*
+         * Siempre encima
+         */
+        z-index: 10000;
+    }
+
+    /* ------------------------------
+       BOTONES TOUCH
+       ------------------------------ */
+
+    .ebx-toolbar button {
+        min-width: 44px;
+
+        min-height: 44px;
+
+        flex-shrink: 0;
+    }
+
+    .ebx-toolbar > div:not(.ebx-swatch) {
+        flex-shrink: 0;
+    }
+
+    /* ------------------------------
+       POPUPS MOBILE
+       ------------------------------ */
+
+    .ebx-popup {
+        left: 12px !important;
+        right: 12px;
+
+        top: 16px !important;
+
+        width: auto;
+
+        max-width: none;
+
+        transform: none !important;
+
+        flex-wrap: wrap;
+
+        justify-content: center;
+
+        row-gap: 8px;
+
+        padding: 10px !important;
+
+        z-index: 11000;
+    }
+
+    .ebx-popup input[type="number"] {
+        min-height: 36px;
+    }
+
+    .ebx-popup button {
+        min-height: 40px;
+    }
+
+    /* ------------------------------
+       BOTONES GENERALES MOBILE
+       ------------------------------ */
+
+    .board-actions {
+        gap: 8px;
+    }
+
+    .board-status {
+        padding-right: 8px;
+        margin-right: 0;
+    }
+}

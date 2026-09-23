@@ -1,0 +1,264 @@
+
+        :root {
+            --paper: #F2EBDC;
+            --ink: #1A1D24;
+            --blue: #1F3FA8;
+            --red: #FF4D4D;
+            --font-display: 'IBM Plex Mono', monospace;
+        }
+
+        .profile-page {
+            padding-top: 40px;
+            padding-bottom: 60px;
+        }
+
+        .profile-hero {
+            max-width: 800px;
+            margin: 0 auto 48px;
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            padding: 32px;
+            background: rgba(242, 235, 220, 0.5);
+            border: 1.5px solid var(--ink);
+            border-radius: 24px;
+            backdrop-filter: blur(12px);
+            box-shadow: 8px 8px 0 var(--ink);
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            background: var(--blue);
+            color: var(--paper);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            border: 3px solid var(--ink);
+            box-shadow: 4px 4px 0 var(--ink);
+        }
+
+        .profile-header-copy {
+            flex: 1;
+        }
+
+        .profile-title {
+            font-family: var(--font-display);
+            font-size: clamp(2rem, 3vw, 2.6rem);
+            margin: 0 0 8px;
+            line-height: 1.1;
+            color: var(--ink);
+        }
+
+        .profile-description {
+            color: var(--ink);
+            opacity: 0.7;
+            font-size: 1.1rem;
+            margin: 0;
+        }
+
+        .logout-form {
+            display: inline;
+        }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 32px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .profile-card {
+            background: rgba(242, 235, 220, 0.8);
+            border: 1.5px solid var(--ink);
+            box-shadow: 6px 6px 0 var(--ink);
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            backdrop-filter: blur(12px);
+        }
+
+        .profile-card:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 8px 8px 0 var(--ink);
+        }
+
+        .profile-card-header {
+            background: var(--ink);
+            color: var(--paper);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .profile-card-header h2 {
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin: 0;
+            letter-spacing: 0.08em;
+            color: var(--paper);
+        }
+
+        .profile-card-body {
+            padding: 40px 24px 32px;
+        }
+
+        .profile-card.danger .profile-card-header {
+            background: var(--red);
+        }
+
+        .profile-form {
+            display: grid;
+            gap: 24px;
+        }
+
+        .field-group {
+            display: grid;
+            gap: 8px;
+        }
+
+        .profile-card .field-group > label,
+        .profile-card label {
+            font-family: var(--font-display);
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--ink);
+            opacity: 0.8;
+            display: block;
+            margin: 0;
+        }
+
+        .profile-card .field-group input,
+        .profile-card .field-group textarea,
+        .profile-card .field-group select,
+        .profile-card input,
+        .profile-card textarea,
+        .profile-card select {
+            background: transparent;
+            border: 1.5px solid var(--ink);
+            border-radius: 8px;
+            font-family: var(--font-display);
+            color: var(--ink);
+            padding: 12px 16px;
+            width: 100%;
+            margin: 0;
+            box-sizing: border-box;
+            transition: background-color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+
+        .profile-card .field-group input:focus,
+        .profile-card .field-group textarea:focus,
+        .profile-card .field-group select:focus {
+            background: rgba(255,255,255,0.3);
+            box-shadow: 0 0 0 3px rgba(31, 63, 168, 0.15);
+            outline: 2px solid transparent;
+            outline-offset: 2px;
+            box-shadow: 0 0 0 2px var(--ink), 0 0 0 4px rgba(31, 63, 168, 0.15);
+        }
+
+        .profile-form-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .profile-card button,
+        .profile-card .profile-button {
+            font-family: var(--font-display) !important;
+            text-transform: uppercase !important;
+            font-weight: 600 !important;
+            padding: 12px 24px !important;
+            border: 1.5px solid var(--ink) !important;
+            cursor: pointer !important;
+            transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+            border-radius: 8px !important;
+            margin: 0 !important;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.2;
+        }
+
+        .profile-card button[type="submit"],
+        .profile-card .profile-button:not(.btn-danger) {
+            background: var(--blue) !important;
+            color: var(--paper) !important;
+            box-shadow: 3px 3px 0 var(--ink) !important;
+        }
+
+        .profile-card .btn-danger,
+        .profile-card button.btn-danger {
+            background: var(--red) !important;
+            color: var(--paper) !important;
+            box-shadow: 3px 3px 0 var(--ink) !important;
+        }
+
+        .profile-card button:hover,
+        .profile-card .profile-button:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 5px 5px 0 var(--ink) !important;
+        }
+
+        .profile-card button:focus-visible,
+        .profile-card .profile-button:focus-visible {
+            outline: 2px solid var(--blue);
+            outline-offset: 2px;
+        }
+
+        .profile-card button:focus,
+        .profile-card .profile-button:focus {
+            outline: none;
+        }
+
+        .profile-form-status {
+            font-family: var(--font-display);
+            font-size: 0.72rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: var(--ink);
+            opacity: 0.8;
+        }
+
+        .profile-card .error-message,
+        .profile-card .text-red-600,
+        .profile-card .text-sm.text-gray-600,
+        .profile-card .mt-2 {
+            margin-top: 6px !important;
+            font-size: 0.78rem !important;
+            color: var(--red) !important;
+            font-weight: 600;
+            font-family: var(--font-display);
+        }
+
+        @media (max-width: 640px) {
+            .profile-hero {
+                flex-direction: column;
+                text-align: center;
+                padding: 24px;
+            }
+            .profile-header-copy {
+                text-align: center;
+            }
+            .profile-avatar {
+                margin: 0 auto;
+            }
+        }
+  
