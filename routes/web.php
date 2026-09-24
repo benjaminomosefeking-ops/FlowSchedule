@@ -24,6 +24,10 @@ Route::get('/privacidad', function () {
     return view('terms.privacy');
 })->name('privacidad');
 
+Route::get('/aviso-legal', function () {
+    return view('terms.aviso-legal');
+})->name('aviso-legal');
+
 Route::get('/contacto', function () {
     return view('terms.contact');
 })->name('contacto');

@@ -16,7 +16,6 @@
         "alpinejs": "^3.16.2",
         "autoprefixer": "^10.4.2",
         "concurrently": "^10.0.3",
-        "drawflow": "^0.0.60",
         "laravel-echo": "^2.5.0",
         "laravel-vite-plugin": "^3.1",
         "postcss": "^8.4.31",
@@ -28,7 +27,6 @@
         "@laravel/multiplex": "^0.4.1"
     },
     "dependencies": {
-        "@excalidraw/excalidraw": "^0.18.1",
         "@vitejs/plugin-react": "^6.1.1",
         "axios": "^1.20.0",
         "html2canvas": "^1.4.1",

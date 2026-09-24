@@ -12,12 +12,10 @@
     // EDITA ESTOS DATOS con la información real de contacto
     // ─────────────────────────────────────────────
     $contacto = [
-        'email'    => 'soporte@flowscheduler.com',
-        'telefono' => '+34 900 000 000',
+        'email'    => 'landinginformation222@gmail.com',
         'horario'  => 'Lunes a viernes, de 9:00 a 18:00',
     ];
-    $telefonoLink = preg_replace('/[^\d+]/', '', $contacto['telefono']);
-
+    
     // Pasos de "Cómo funciona"
     $pasos = [
         [
@@ -240,20 +238,7 @@
                         </div>
                     </li>
 
-                    <li class="help-contact__item">
-                        <span class="help-contact__icon" aria-hidden="true">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 8V5z" />
-                            </svg>
-                        </span>
-                        <div>
-                            <p class="help-contact__label">Teléfono</p>
-                            <p class="help-contact__value">
-                                <a href="tel:{{ $telefonoLink }}" class="help-contact__link">{{ $contacto['telefono'] }}</a>
-                            </p>
-                        </div>
-                    </li>
-
+                    
                     <li class="help-contact__item">
                         <span class="help-contact__icon" aria-hidden="true">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">

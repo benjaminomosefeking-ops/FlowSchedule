@@ -2,103 +2,21 @@
     <x-slot name="title">Política de Privacidad | FlowSchedule</x-slot>
 
     @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/terms/privacity.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/terms/privacy.css') }}">
     @endpush
 
     @include('layouts.navigation')
 
     @php
-    // Información de contacto real del proyecto
-    $contacto = [
-        'email'    => 'soporte@flowscheduler.com', // Este email puede ser inventado según las instrucciones
-        'telefono' => '+34 900 000 000',           // Número de contacto ficticio según las instrucciones
-        'horario'  => 'Lunes a viernes, de 9:00 a 18:00',
-    ];
-    $telefonoLink = preg_replace('/[^\d+]/', '', $contacto['telefono']);
+        // Información real del responsable
+        $responsable = [
+            'nombre'    => 'Benjamin King',
+            'email'     => 'landinginformation222@gmail.com',
+            'ubicacion' => 'Valencia, España',
+        ];
 
-    // Fecha de la última revisión legal
-    $ultimaActualizacion = \Carbon\Carbon::parse('2026-09-20')->locale('es');
-
-    // Cláusulas: el índice y el contenido se generan desde este array
-    // 'items' = lista de [etiqueta, texto] · 'cierre' = párrafos tras la lista · 'nota' = [título, texto]
-    $secciones = [
-        [
-            'id'     => 'informacion-recopilada',
-            'titulo' => 'Información que recopilamos',
-            'intro'  => 'FlowSchedule recopila la siguiente información personal cuando usted se registra y utiliza nuestra plataforma:',
-            'items'  => [
-                ['Información de cuenta', 'nombre completo, dirección de correo electrónico y contraseña cifrada.'],
-                ['Datos de autenticación', 'marca de tiempo de verificación de correo electrónico y tokens de sesión para mantener su conexión segura.'],
-                ['Información de perfil opcional (para usuarios tipo «jefe»)', 'nombre de la empresa y descripción de la empresa, solo si usted elige proporcionar esta información durante el proceso de configuración inicial.'],
-                ['Información de contacto', 'cuando utiliza nuestro formulario de contacto, recopilamos su nombre, dirección de correo electrónico y el mensaje que nos envía.'],
-            ],
-            'nota'   => [
-                'Nota importante sobre los correos electrónicos',
-                'Las direcciones de correo electrónico mostradas en esta aplicación (como soporte@flowscheduler.com) son ejemplos y pueden ser inventados. Sin embargo, si usted proporciona su correo electrónico personal durante el registro o en el formulario de contacto, esa información es real y se trata según lo descrito en esta política.',
-            ],
-        ],
-        [
-            'id'     => 'uso-informacion',
-            'titulo' => 'Cómo usamos su información',
-            'intro'  => 'Utilizamos la información que recopilamos para los siguientes propósitos:',
-            'items'  => [
-                ['Proveer y mantener nuestro servicio', 'para crear y gestionar su cuenta, autenticar su acceso y proporcionar la funcionalidad principal de planificación y organización.'],
-                ['Comunicaciones relacionadas con el servicio', 'para enviarle notificaciones sobre su cuenta, actualizaciones de funcionalidad y respuestas a sus consultas de soporte.'],
-                ['Mejorar nuestro servicio', 'para entender cómo utiliza FlowSchedule e identificar oportunidades para mejorar la experiencia del usuario.'],
-                ['Responder a solicitudes de contacto', 'para procesar y responder a los mensajes que nos envía mediante nuestro formulario de contacto.'],
-            ],
-            'cierre' => [
-                'No utilizamos su información personal para fines de marketing ni para crear perfiles publicitarios.',
-            ],
-        ],
-        [
-            'id'     => 'base-legal',
-            'titulo' => 'Base legal y fundamentación',
-            'intro'  => 'El tratamiento de su información personal se basa en los siguientes fundamentos legales:',
-            'items'  => [
-                ['Ejecución de un contrato', 'cuando el tratamiento es necesario para proporcionar nuestro servicio de planificación según nuestros términos de servicio.'],
-                ['Consentimiento', 'cuando usted proporciona información adicional opcional (como el nombre de la empresa) o se comunica con nosotros mediante el formulario de contacto.'],
-                ['Interés legítimo', 'para mejorar nuestro servicio y proporcionar comunicaciones relacionadas con el servicio que razonablemente espera recibir como usuario.'],
-                ['Cumplimiento de obligaciones legales', 'cuando estamos obligados por ley a conservar ciertos registros.'],
-            ],
-            'cierre' => [
-                'Usted puede retirar su consentimiento en cualquier momento para el tratamiento basado en consentimiento, sin afectar al tratamiento basado en otras bases legales.',
-            ],
-        ],
-        [
-            'id'     => 'seguridad',
-            'titulo' => 'Seguridad de su información',
-            'intro'  => 'Implementamos medidas de seguridad razonables para proteger su información personal:',
-            'items'  => [
-                ['Contraseñas cifradas', 'todas las contraseñas se almacenan utilizando un hash criptográfico fuerte (bcrypt) y nunca en texto plano.'],
-                ['Transmisión segura', 'utilizamos HTTPS para cifrar todos los datos transmitidos entre su navegador y nuestros servidores.'],
-                ['Control de acceso', 'restringimos el acceso a la información personal solo al personal autorizado que necesita conocerla para desempeñar sus funciones.'],
-                ['Monitoreo de seguridad', 'revisamos periódicamente nuestros sistemas para identificar y abordar vulnerabilidades de seguridad.'],
-            ],
-            'cierre' => [
-                'Sin embargo, debe ser consciente de que ningún método de transmisión por Internet ni de almacenamiento electrónico es 100 % seguro.',
-            ],
-        ],
-        [
-            'id'     => 'derechos',
-            'titulo' => 'Sus derechos',
-            'intro'  => 'Dependiendo de su jurisdicción, usted puede tener ciertos derechos respecto de su información personal:',
-            'items'  => [
-                ['Derecho de acceso', 'puede solicitar una copia de la información personal que mantenemos sobre usted.'],
-                ['Derecho de rectificación', 'puede solicitar que corrijamos cualquier información personal inexacta que mantenemos sobre usted.'],
-                ['Derecho de eliminación', 'en ciertas circunstancias, puede solicitar que eliminemos su información personal.'],
-                ['Derecho a retirar el consentimiento', 'cuando el tratamiento se base en su consentimiento, puede retirarlo en cualquier momento.'],
-                ['Derecho a la portabilidad', 'en ciertas circunstancias, tiene derecho a recibir su información personal en un formato estructurado, de uso común y lectura mecánica.'],
-            ],
-            'cierre' => [
-                'Para ejercer cualquiera de estos derechos, contáctenos utilizando la información de la sección de contacto que figura a continuación.',
-            ],
-            'nota'   => [
-                'Importante sobre la recuperación de contraseñas',
-                'Si olvida su contraseña, utilice la función «¿Olvidó su contraseña?» en la pantalla de inicio de sesión. Si desea cambiar el correo electrónico asociado a su cuenta para fines de recuperación, hágalo mediante la función «Editar Perfil» de su cuenta.',
-            ],
-        ],
-    ];
+        // Fecha de la última revisión legal
+        $ultimaActualizacion = \Carbon\Carbon::parse('2026-09-24')->locale('es');
     @endphp
 
     <div class="privacy-page">
@@ -115,152 +33,161 @@
 
                     <p class="privacy-lead">
                         Esta política describe cómo FlowSchedule recopila, utiliza y protege la información personal
-                        de los usuarios que se registran y utilizan nuestra plataforma de gestión y planificación.
-                    </p>
-                </div>
-
-                <!-- Resumen rápido -->
-                <div class="privacy-summary">
-                    <div class="privacy-summary__grid">
-                        <div class="privacy-summary__item">
-                            <h2 class="privacy-summary__title">Información recopilada</h2>
-                            <p class="privacy-summary__text">Nombre, correo electrónico y datos básicos de la cuenta.</p>
-                        </div>
-                        <div class="privacy-summary__item">
-                            <h2 class="privacy-summary__title">Uso de la información</h2>
-                            <p class="privacy-summary__text">Para proporcionar y mejorar el servicio de planificación.</p>
-                        </div>
-                        <div class="privacy-summary__item">
-                            <h2 class="privacy-summary__title">Privacidad</h2>
-                            <p class="privacy-summary__text">No compartimos información personal con terceros para fines de marketing.</p>
-                        </div>
-                    </div>
-                    <p class="privacy-summary__note">
-                        Este resumen es orientativo y no sustituye a la política completa que figura a continuación.
+                        de acuerdo con su naturaleza como proyecto personal de portfolio y demostración técnica.
                     </p>
                 </div>
             </header>
 
             <div class="privacy-layout">
 
-                <!-- Índice (móvil: desplegable) -->
-                <details class="privacy-box privacy-toc-mobile privacy-noprint">
-                    <summary class="privacy-toc-mobile__summary">
-                        Índice de contenidos
-                        <svg class="privacy-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
-                    </summary>
-                    <nav aria-label="Índice de contenidos" class="privacy-toc-mobile__nav">
-                        <ul class="privacy-toc__list">
-                            @foreach ($secciones as $s)
-                            <li>
-                                <a href="#{{ $s['id'] }}" data-toc="{{ $s['id'] }}" class="privacy-toc__link">
-                                    <span class="privacy-toc__num">{{ $loop->iteration }}</span>
-                                    <span>{{ $s['titulo'] }}</span>
-                                </a>
-                            </li>
-                            @endforeach
-                            <li>
-                                <a href="#contacto" data-toc="contacto" class="privacy-toc__link">
-                                    <span class="privacy-toc__num privacy-toc__num--mark" aria-hidden="true"></span>
-                                    <span>Contacto</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </nav>
-                </details>
-
-                <!-- Índice (escritorio) -->
-                <aside class="privacy-toc-desktop privacy-noprint">
-                    <nav aria-label="Índice de contenidos" class="privacy-box privacy-toc-desktop__nav">
-                        <ul class="privacy-toc__list">
-                            @foreach ($secciones as $s)
-                            <li>
-                                <a href="#{{ $s['id'] }}" data-toc="{{ $s['id'] }}" class="privacy-toc__link">
-                                    <span class="privacy-toc__num">{{ $loop->iteration }}</span>
-                                    <span>{{ $s['titulo'] }}</span>
-                                </a>
-                            </li>
-                            @endforeach
-                            <li>
-                                <a href="#contacto" data-toc="contacto" class="privacy-toc__link">
-                                    <span class="privacy-toc__num privacy-toc__num--mark" aria-hidden="true"></span>
-                                    <span>Contacto</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </nav>
-                </aside>
-
                 <!-- Contenido principal -->
                 <div class="privacy-main">
                     <article class="privacy-box privacy-article">
-                        @foreach ($secciones as $s)
-                        <section id="{{ $s['id'] }}" data-section class="privacy-section">
+
+                        <section id="responsable-tratamiento" class="privacy-section">
                             <h2 class="privacy-section__title">
-                                <span class="privacy-num" aria-hidden="true">{{ $loop->iteration }}</span>
-                                <span class="privacy-section__title-text">{{ $s['titulo'] }}</span>
+                                <span class="privacy-num" aria-hidden="true">1</span>
+                                <span class="privacy-section__title-text">Responsable del Tratamiento</span>
                             </h2>
 
                             <div class="privacy-section__body">
-                                <p>{{ $s['intro'] }}</p>
-
+                                <p>El responsable del tratamiento de sus datos personales es:</p>
                                 <ul class="privacy-list">
-                                    @foreach ($s['items'] as $item)
-                                    <li>
-                                        <span class="privacy-bullet" aria-hidden="true"></span>
-                                        <span><strong>{{ $item[0] }}:</strong> {{ $item[1] }}</span>
-                                    </li>
-                                    @endforeach
+                                    <li><span class="privacy-bullet" aria-hidden="true"></span><strong>Nombre:</strong> Benjamin King</li>
+                                    <li><span class="privacy-bullet" aria-hidden="true"></span><strong>Correo electrónico:</strong> <a href="mailto:{{ $responsable['email'] }}">{{ $responsable['email'] }}</a></li>
+                                    <li><span class="privacy-bullet" aria-hidden="true"></span><strong>Ubicación:</strong> {{ $responsable['ubicacion'] }}</li>
                                 </ul>
-
-                                @isset($s['cierre'])
-                                    @foreach ($s['cierre'] as $parrafo)
-                                        <p>{{ $parrafo }}</p>
-                                    @endforeach
-                                @endisset
-
-                                @isset($s['nota'])
-                                    <p class="privacy-note">
-                                        <strong class="privacy-note__title">{{ $s['nota'][0] }}</strong>
-                                        {{ $s['nota'][1] }}
-                                    </p>
-                                @endisset
                             </div>
                         </section>
-                        @endforeach
+
+                        <section id="datos-recopilados" class="privacy-section">
+                            <h2 class="privacy-section__title">
+                                <span class="privacy-num" aria-hidden="true">2</span>
+                                <span class="privacy-section__title-text">Datos que Recopilamos</span>
+                            </h2>
+
+                            <div class="privacy-section__body">
+                                <p>FlowSchedule recopila únicamente los datos necesarios para proporcionar su funcionalidad como sistema de gestión de turnos y tareas. No recopilamos datos con fines de marketing, publicidad o análisis de terceros.</p>
+
+                                <p>Los datos que recopilamos se clasifican en las siguientes categorías:</p>
+
+                                <ul class="privacy-list">
+                                    <li><span class="privacy-bullet" aria-hidden="true"></span><strong>Datos de cuenta:</strong> Nombre, dirección de correo electrónico y contraseña almacenada mediante hash seguro (bcrypt).</li>
+                                    <li><span class="privacy-bullet" aria-hidden="true"></span><strong>Datos de empleados (opcional):</strong> Nombre, correo laboral, skills (en formato JSON) y contador de fines de semana para distribución equitativa.</li>
+                                    <li><span class="privacy-bullet" aria-hidden="true"></span><strong>Datos de turnos y asignaciones:</strong> Título, descripción, tipo de turno, habilidades requeridas, horarios de inicio y fin, estado del turno y relaciones entre usuarios, empleados y turnos.</li>
+                                    <li><span class="privacy-bullet" aria-hidden="true"></span><strong>Datos de tareas:</strong> Título, descripción, fecha de vencimiento, estado de completado, prioridad y relaciones con usuarios y equipos.</li>
+                                    <li><span class="privacy-bullet" aria-hidden="true"></span><strong>Datos de calendario:</strong> Fecha, título, nota, color y datos de dibujo (para eventos personales de calendario).</li>
+                                    <li><span class="privacy-bullet" aria-hidden="true"></span><strong>Datos de pizarras:</strong> Nombre de la pizarra y contenido serializado (para organización tipo Kanban).</li>
+                                    <li><span class="privacy-bullet" aria-hidden="true"></span><strong>Datos de equipos:</strong> Nombre del equipo y relaciones de pertenencia entre usuarios y equipos.</li>
+                                </ul>
+
+                                <p class="privacy-note">
+                                    <strong>Nota importante:</strong> No utilizamos cookies de tracking, no integremos Google Analytics ni servicios similares, y no compartimos datos personales con terceros para fines comerciales.
+                                </p>
+                            </div>
+                        </section>
+
+                        <section id="uso-datos" class="privacy-section">
+                            <h2 class="privacy-section__title">
+                                <span class="privacy-num" aria-hidden="true">3</span>
+                                <span class="privacy-section__title-text">Cómo Utilizamos sus Datos</span>
+                            </h2>
+
+                            <div class="privacy-section__body">
+                                <p>Utilizamos la información que recopilamos exclusivamente para proporcionar y mantener la funcionalidad de FlowSchedule como sistema de gestión:</p>
+
+                                <ul class="privacy-list">
+                                    <li><span class="privacy-bullet" aria-hidden="true"></span><strong>Gestión de cuentas:</strong> Autenticación, recuperación de contraseña y personalización de la experiencia de usuario.</li>
+                                    <li><span class="privacy-bullet" aria-hidden="true"></span><strong>Funcionalidad principal:</strong> Creación, gestión y asignación de turnos; organización de tareas y eventos; gestión de pizarras tipo Kanban; y visualización de calendarios.</li>
+                                    <li><span class="privacy-bullet" aria-hidden="true"></span><strong>Seguridad:</strong> Protección de cuentas mediante hash de contraseñas bcrypt y validación de sesiones.</li>
+                                    <li><span class="privacy-bullet" aria-hidden="true"></span><strong>Comunicaciones esenciales:</strong> Notificaciones relacionadas con la funcionalidad del sistema (restablecimiento de contraseña, etc.) cuando estén configuradas.</li>
+                                </ul>
+
+                                <p class="privacy-note">
+                                    <strong>Importante:</strong> Las contraseñas se almacenan mediante hash seguro (bcrypt), lo que significa que son irreversibles y no pueden ser descifradas. Nunca almacenamos contraseñas en texto plano.
+                                </p>
+                            </div>
+                        </section>
+
+                        <section id="base-legal" class="privacy-section">
+                            <h2 class="privacy-section__title">
+                                <span class="privacy-num" aria-hidden="true">4</span>
+                                <span class="privacy-section__title-text">Base Legal del Tratamiento</span>
+                            </h2>
+
+                            <div class="privacy-section__body">
+                                <p>El tratamiento de sus datos personales en FlowSchedule se basa en los siguientes fundamentos:</p>
+
+                                <ul class="privacy-list">
+                                    <li><span class="privacy-bullet" aria-hidden="true"></span><strong>Ejecución de funcionalidad:</strong> El tratamiento es necesario para proporcionar el servicio de gestión de turnos y tareas que solicita explícitamente al usar la aplicación.</li>
+                                    <li><span class="privacy-bullet" aria-hidden="true"></span><strong>Interés legítimo:</strong> Mejorar la funcionalidad y seguridad de la aplicación basado en el uso legítimo que usted hace de ella como usuario registrado.</li>
+                                </ul>
+
+                                <p>No tratamos sus datos personales con base en el consentimiento para fines de marketing o publicidad, ya que FlowSchedule no realiza estas actividades.</p>
+                            </div>
+                        </section>
+
+                        <section id="seguridad" class="privacy-section">
+                            <h2 class="privacy-section__title">
+                                <span class="privacy-num" aria-hidden="true">5</span>
+                                <span class="privacy-section__title-text">Medidas de Seguridad</span>
+                            </h2>
+
+                            <div class="privacy-section__body">
+                                <p>Implementamos las siguientes medidas técnicas de seguridad para proteger sus datos personales:</p>
+
+                                <ul class="privacy-list">
+                                    <li><span class="privacy-bullet" aria-hidden="true"></span><strong>Almacenamiento seguro de contraseñas:</strong> Todas las contraseñas se almacenan utilizando hash bcrypt, que es un algoritmo de criptografía unidireccional.</li>
+                                    <li><span class="privacy-bullet" aria-hidden="true"></span><strong>Sesiones seguras:</strong> Utilizamos las sesiones de Laravel con almacenamiento en base de datos para mantener la seguridad de las conexiones.</li>
+                                    <li><span class="privacy-bullet" aria-hidden="true"></span><strong>Protección CSRF:</strong> Todas las formas incluyen protección contra falsificación de solicitudes entre sitios.</li>
+                                    <li><span class="privacy-bullet" aria-hidden="true"></span><strong>Encabezados de seguridad:</strong> Implementamos SecureHeadersMiddleware para proteger contra vulnerabilidades web comunes.</li>
+                                    <li><span class="privacy-bullet" aria-hidden="true"></span><strong>Almacenamiento en base de datos:</strong> Sesiones, caché y colas se almacenan en base de datos para mayor control y seguridad.</li>
+                                </ul>
+
+                                <p class="privacy-note">
+                                    <strong>Limitación de responsabilidad:</strong> Aunque implementamos medidas de seguridad razonables, ningún sistema puede garantizar seguridad absoluta. Le recomendamos utilizar contraseñas únicas y mantener buenas prácticas de seguridad.
+                                </p>
+                            </div>
+                        </section>
+
+                        <section id="derechos" class="privacy-section">
+                            <h2 class="privacy-section__title">
+                                <span class="privacy-num" aria-hidden="true">6</span>
+                                <span class="privacy-section__title-text">Derechos de los Usuarios</span>
+                            </h2>
+
+                            <div class="privacy-section__body">
+                                <p>Como responsable del tratamiento, le facilitamos el ejercicio de sus derechos respecto a sus datos personales:</p>
+
+                                <ul class="privacy-list">
+                                    <li><span class="privacy-bullet" aria-hidden="true"></span><strong>Derecho de acceso:</strong> Puede solicitar una copia de los datos personales que mantenemos sobre usted.</li>
+                                    <li><span class="privacy-bullet" aria-hidden="true"></span><strong>Derecho de rectificación:</strong> Puede solicitar que corrijamos cualquier dato personal inexacto que mantenemos sobre usted.</li>
+                                    <li><span class="privacy-bullet" aria-hidden="true"></span><strong>Derecho de eliminación:</strong> En las circunstancias legalmente previstas, puede solicitar la eliminación de sus datos personales.</li>
+                                    <li><span class="privacy-bullet" aria-hidden="true"></span><strong>Derecho a la limitación:</strong> Puede solicitar que limitemos el tratamiento de sus datos en determinadas circunstancias.</li>
+                                    <li><span class="privacy-bullet" aria-hidden="true"></span><strong>Derecho a la portabilidad:</strong> Cuando sea técnicamente factible, tiene derecho a recibir sus datos en un formato estructurado y de uso común.</li>
+                                </ul>
+
+                                <p>Para ejercer cualquiera de estos derechos o realizar consultas relacionadas con su privacidad, por favor contacte a través de:</p>
+                                <p class="privacy-contact">
+                                    <a href="mailto:{{ $responsable['email'] }}">{{ $responsable['email'] }}</a>
+                                </p>
+
+                                <p class="privacy-note">
+                                    <strong>Nota importante:</strong> FlowSchedule no realiza verificación obligatoria de correo electrónico. Puede utilizar la aplicación sin verificar su dirección de correo electrónico, aunque ciertas funcionalidades de recuperación de cuenta podrían verse afectadas.
+                                </p>
+                            </div>
+                        </section>
+
                     </article>
-
-                    <!-- Contacto -->
-                    <section id="contacto" data-section class="privacy-box privacy-contact" style="scroll-margin-top: 6rem;">
-                        <div class="privacy-contact__head">
-                            <h2 class="privacy-contact__title">¿Tiene alguna duda sobre nuestra política de privacidad?</h2>
-                            <p class="privacy-contact__text">Escríbanos o llámenos y le ayudaremos a resolverla.</p>
-                        </div>
-
-                        <dl class="privacy-contact__list">
-                            <div class="privacy-contact__item">
-                                <dt class="privacy-contact__label">Correo electrónico</dt>
-                                <dd class="privacy-contact__value">
-                                    <a href="mailto:{{ $contacto['email'] }}" class="privacy-contact__link">{{ $contacto['email'] }}</a>
-                                </dd>
-                            </div>
-                            <div class="privacy-contact__item">
-                                <dt class="privacy-contact__label">Teléfono</dt>
-                                <dd class="privacy-contact__value">
-                                    <a href="tel:{{ $telefonoLink }}" class="privacy-contact__link">{{ $contacto['telefono'] }}</a>
-                                </dd>
-                            </div>
-                        </dl>
-                    </section>
-
-                    <!-- Enlace de regreso -->
-                    <div class="privacy-noprint">
-                        <a href="{{ route('help') }}" class="privacy-btn">
-                            <svg class="privacy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
-                            Volver a Ayuda y Soporte
-                        </a>
-                    </div>
                 </div>
+
+                            <!-- Enlace de regreso -->
+                        <div class="privacy-noprint">
+                            <a href="{{ route('help') }}" class="privacy-btn">
+                                <svg class="privacy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+                                Volver a Ayuda y Soporte
+                            </a>
+                        </div>
             </div>
         </div>
     </div>

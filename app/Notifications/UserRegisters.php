@@ -38,8 +38,7 @@ class UserRegisters extends Notification
             ->subject('¡Bienvenido a FlowSchedule!')
             ->greeting('Hola ' . $notifiable->name . ',')
             ->line('¡Bienvenido a FlowSchedule! Nos alegra mucho tenerte con nosotros.')
-            ->action('Verifica tu correo electrónico', url('/email/verify'))
-            ->line('Haz clic en el botón de arriba para verificar tu dirección de correo electrónico y comenzar.')
+            ->line('Ya puedes comenzar a utilizar FlowSchedule.')
             ->line('¡Gracias por unirte a nuestra comunidad!');
     }
 

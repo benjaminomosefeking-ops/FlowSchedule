@@ -8,15 +8,12 @@
     @include('layouts.navigation')
 
     @php
-    // ─────────────────────────────────────────────
-    // EDITA ESTOS DATOS con la información real de contacto
-    // ─────────────────────────────────────────────
-    $contacto = [
-        'email'    => 'soporte@flowscheduler.com',
-        'telefono' => '+34 900 000 000',
-        'horario'  => 'Lunes a viernes, de 9:00 a 18:00',
-    ];
-    $telefonoLink = preg_replace('/[^\d+]/', '', $contacto['telefono']);
+        // Información real de contacto
+        $contacto = [
+            'nombre'    => 'Benjamin King',
+            'email'     => 'landinginformation222@gmail.com',
+            'ubicacion' => 'Valencia, España',
+        ];
     @endphp
 
     <div class="contact-page">
@@ -25,18 +22,33 @@
             <!-- Cabecera -->
             <header class="contact-box contact-hero">
                 <h1 class="contact-title">Contacto</h1>
-                <p class="contact-lead">
-                    Estamos aquí para ayudarte. Si tienes una pregunta, una sugerencia o necesitas asistencia, escríbenos o llámanos, o déjanos un mensaje y te respondemos.
+                <p class="contact-leaf">
+                    Información de contacto para consultas relacionadas con FlowSchedule
                 </p>
             </header>
 
             <div class="contact-layout">
 
-                <!-- Canales de contacto -->
-                <section class="contact-box" aria-labelledby="canales-titulo">
+                <!-- Información de contacto -->
+                <section class="contact-box" aria-labelledby="datos-titulo">
                     <div class="contact-panel__head">
-                        <h2 id="canales-titulo" class="contact-panel__title">¿Necesitas ayuda?</h2>
-                        <p class="contact-panel__text">Elige el canal que te resulte más cómodo.</p>
+                        <h2 id="datos-titulo" class="contact-panel__title">Datos de contacto</h2>
+                        <p class="contact-panel__text">
+                            Puede utilizar la siguiente información para ponerse en contacto
+                            con el responsable de FlowSchedule.
+                        </p>
+                    </div>
+
+                    <div class="contact-channel">
+                        <span class="contact-channel__icon" aria-hidden="true">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                        </span>
+                        <div>
+                            <p class="contact-channel__label">Responsable</p>
+                            <p class="contact-channel__value">{{ $contacto['nombre'] }}</p>
+                        </div>
                     </div>
 
                     <div class="contact-channel">
@@ -56,73 +68,33 @@
                     <div class="contact-channel">
                         <span class="contact-channel__icon" aria-hidden="true">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 8V5z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z" />
                             </svg>
                         </span>
                         <div>
-                            <p class="contact-channel__label">Teléfono</p>
-                            <p class="contact-channel__value">
-                                <a href="tel:{{ $telefonoLink }}" class="contact-link">{{ $contacto['telefono'] }}</a>
-                            </p>
+                            <p class="contact-channel__label">Ubicación</p>
+                            <p class="contact-channel__value">{{ $contacto['ubicacion'] }}</p>
                         </div>
                     </div>
                 </section>
 
-                <!-- Formulario -->
-                <section class="contact-box" aria-labelledby="form-titulo">
+                <!-- Información sobre el proyecto -->
+                <section class="contact-box" aria-labelledby="proyecto-titulo">
                     <div class="contact-panel__head">
-                        <h2 id="form-titulo" class="contact-panel__title">¿Prefieres que te contactemos nosotros?</h2>
-                        <p class="contact-panel__text">Déjanos tus datos y tu mensaje, y te responderemos lo antes posible.</p>
+                        <h2 id="proyecto-titulo" class="contact-panel__title">Sobre FlowSchedule</h2>
+                        <p class="contact-panel__text">
+                            Información relevante sobre la naturaleza y propósito del proyecto.
+                        </p>
                     </div>
 
-                    @if (session('status'))
-                        <p class="contact-alert" role="status">{{ session('status') }}</p>
-                    @endif
-
-                    {{-- Cambia action="#" por la ruta que procese el formulario, por ejemplo {{ route('contact.send') }} --}}
-                    <form action="#" method="POST" class="contact-form" novalidate>
-                        @csrf
-
-                        <div class="contact-form__row">
-                            <div class="contact-field">
-                                <label for="nombre" class="contact-field__label">Nombre completo</label>
-                                <input type="text" id="nombre" name="nombre" required autocomplete="name"
-                                       value="{{ old('nombre') }}"
-                                       class="contact-field__input"
-                                       aria-invalid="{{ $errors->has('nombre') ? 'true' : 'false' }}"
-                                       @if ($errors->has('nombre')) aria-describedby="nombre-error" @endif>
-                                @error('nombre')
-                                    <p id="nombre-error" class="contact-field__error">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <div class="contact-field">
-                                <label for="email" class="contact-field__label">Correo electrónico</label>
-                                <input type="email" id="email" name="email" required autocomplete="email"
-                                       value="{{ old('email') }}"
-                                       class="contact-field__input"
-                                       aria-invalid="{{ $errors->has('email') ? 'true' : 'false' }}"
-                                       @if ($errors->has('email')) aria-describedby="email-error" @endif>
-                                @error('email')
-                                    <p id="email-error" class="contact-field__error">{{ $message }}</p>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="contact-field">
-                            <label for="mensaje" class="contact-field__label">Mensaje</label>
-                            <textarea id="mensaje" name="mensaje" rows="6" required
-                                      class="contact-field__input"
-                                      aria-invalid="{{ $errors->has('mensaje') ? 'true' : 'false' }}"
-                                      @if ($errors->has('mensaje')) aria-describedby="mensaje-error" @endif>{{ old('mensaje') }}</textarea>
-                            @error('mensaje')
-                                <p id="mensaje-error" class="contact-field__error">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <button type="submit" class="contact-submit">Enviar mensaje</button>
-                    </form>
+                    <div class="contact-info">
+                        <p><strong>Naturaleza del proyecto:</strong> FlowSchedule es un proyecto personal de portfolio y demostración técnica desarrollado para mostrar capacidades de desarrollo web.</p>
+                        <p><strong>Finalidad:</strong> No constituye un servicio comercial ni ofrece productos de pago. Tiene como único propósito demostrar habilidades técnicas en desarrollo full-stack, arquitectura hexagonal y Laravel 13.</p>
+                        <p><strong>Estado del proyecto:</strong> El código fuente está disponible públicamente en repositorios de código abierto para consulta y estudio.</p>
+                        <p><strong>Limitaciones:</strong> Como proyecto de demostración, ciertas funcionalidades pueden estar en desarrollo, ser limitadas o sujetas a cambios sin previo aviso.</p>
+                    </div>
                 </section>
+
             </div>
 
             <!-- Enlace de regreso -->
