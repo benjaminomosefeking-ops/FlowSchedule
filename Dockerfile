@@ -31,11 +31,15 @@ WORKDIR /var/www/html
 # Copy composer files
 COPY composer.json composer.lock ./
 
-# Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+# Install PHP dependencies without scripts
+RUN composer install --no-dev --no-autoloader --no-scripts --no-interaction --prefer-dist
 
 # Copy application code
 COPY . .
+
+# Generate autoloader and run package discovery
+RUN composer dump-autoload --optimize && \
+    php artisan package:discover --ansi
 
 # Install Node.js dependencies and build frontend
 RUN npm ci && npm run build
