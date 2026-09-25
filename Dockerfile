@@ -46,6 +46,7 @@ RUN npm ci && npm run build
 
 # Set storage and bootstrap/cache permissions
 RUN chmod -R 775 storage bootstrap/cache
+RUN chown -R www-data:www-data storage bootstrap/cache
 
 # Create nginx configuration
 RUN rm /etc/nginx/sites-enabled/default
