@@ -167,8 +167,9 @@
                                 <div class="legal-contact__item">
                                     <dt class="legal-contact__label">Correo electrónico</dt>
                                     <dd class="legal-contact__value">
-                                        <a href="mailto:{{ $responsable['email'] }}" class="legal-contact__link">{{ $responsable['email'] }}</a>
-                                    </dd>
+<a href="mailto:{{ $responsable['email'] }}" class="legal-contact__link" style="color: #000000;">
+    {{ $responsable['email'] }}
+</a>                                    </dd>
                                 </div>
                             </dl>
                         </section>

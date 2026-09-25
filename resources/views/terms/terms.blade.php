@@ -201,8 +201,9 @@
                                 <div class="terms-contact__item">
                                     <dt class="terms-contact__label">Correo electrónico</dt>
                                     <dd class="terms-contact__value">
-                                        <a href="mailto:{{ $responsable['email'] }}" class="terms-contact__link">{{ $responsable['email'] }}</a>
-                                    </dd>
+<a href="mailto:{{ $responsable['email'] }}" class="terms-contact__link" style="color: #000000;">
+    {{ $responsable['email'] }}
+</a>                                    </dd>
                                 </div>
                             </dl>
                         </section>
