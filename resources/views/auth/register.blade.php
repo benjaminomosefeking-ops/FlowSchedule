@@ -71,15 +71,5 @@
   </section>
 </main>
 
-<footer>
-  <div class="wrap footer-row">
-    <span class="footer-brand">© 2026 FlowSchedule · hecho en España</span>
-    <div class="footer-links">
-      <a href="#">Términos</a>
-      <a href="#">Privacidad</a>
-      <a href="#">Contacto</a>
-    </div>
-  </div>
-</footer>
-
+@include('layouts.footer')
 </x-public-layout>
