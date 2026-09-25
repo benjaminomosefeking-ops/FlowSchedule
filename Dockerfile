@@ -61,10 +61,3 @@ EXPOSE 8080
 
 # Start supervisor
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
-
-# Copiar el script de entrada
-COPY entrypoint.sh /var/www/html/entrypoint.sh
-RUN chmod +x /var/www/html/entrypoint.sh
-
-# Usar el script como punto de entrada
-ENTRYPOINT ["/var/www/html/entrypoint.sh"]
