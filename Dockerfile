@@ -14,7 +14,8 @@ RUN apt-get update && apt-get install -y \
     nginx \
     nodejs \
     npm \
-    supervisor
+    supervisor \
+    gettext-base
 
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -59,5 +60,5 @@ COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 # Expose port
 EXPOSE 8080
 
-# Start supervisor
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+# Start supervisor with port substitution
+CMD ["/bin/sh", "-c", "envsubst '${PORT}' < /etc/nginx/sites-available/app.conf > /tmp/nginx.conf && mv /tmp/nginx.conf /etc/nginx/sites-available/app.conf && /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf"]
