@@ -2,7 +2,6 @@
 
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 define('LARAVEL_START', microtime(true));
 
@@ -18,6 +17,8 @@ require __DIR__.'/../vendor/autoload.php';
 /** @var Application $app */
 $app = require_once __DIR__.'/../bootstrap/app.php';
 
-\Log::info('Handling request: '.$request->capture()->getMethod().' '.$request->capture()->getPathInfo());
+$request = Request::capture();
 
-$app->handleRequest(Request::capture());
+logger('Handling request: '.$request->getMethod().' '.$request->getPathInfo());
+
+$app->handleRequest($request);
