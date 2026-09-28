@@ -2,7 +2,7 @@
 
 A healthcare shift management system focused on personnel scheduling and organizational tools.
 
-**Live demo:** https://flowscheduler.onrender.com
+**Live demo:** https://flowscheduler.onrender.com -- If the browse doesn't work you have to wait at least 30 sec
 
 ---
 
