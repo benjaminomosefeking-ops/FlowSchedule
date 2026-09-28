@@ -1,10 +1,11 @@
 <?php
 
+use App\Http\Middleware\LogSessionId;
+use App\Http\Middleware\SecureHeadersMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 $app = Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -14,14 +15,12 @@ $app = Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->append(\App\Http\Middleware\SecureHeadersMiddleware::class);
+        // Global: no necesita sesión, está bien aquí
+        $middleware->append(SecureHeadersMiddleware::class);
         $middleware->trustProxies(at: '*');
 
-        // Add a custom middleware to log the session
-        $middleware->append(function ($request, $next) {
-            \Log::info('Session ID: '.$request->session()->getId());
-            return $next($request);
-        });
+        // Al final del grupo web => StartSession ya se ejecutó
+        $middleware->appendToGroup('web', LogSessionId::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
@@ -29,7 +28,5 @@ $app = Application::configure(basePath: dirname(__DIR__))
         );
     })
     ->create();
-
-\Log::info('Middleware groups: '.print_r($app->make('Illuminate\Contracts\Http\Kernel')->getMiddlewareGroups(), true));
 
 return $app;
