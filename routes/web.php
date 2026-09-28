@@ -1,4 +1,5 @@
 ﻿<?php
+// TEST
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
@@ -72,4 +73,6 @@ Route::middleware('auth')->group(function () {
     })->name('settings.index');
 });
 
+Route::get('/hello', function () { return 'hello'; });
+Route::get('/test-session', function () { session(['test' => 'value']); return session('test'); });
 require __DIR__.'/auth.php';

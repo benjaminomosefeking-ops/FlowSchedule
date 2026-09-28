@@ -12,6 +12,17 @@ use App\Models\Board;
 
 class BoardUpdated implements ShouldBroadcastNow
 {
+    /**
+     * Get the connection name for the broadcast.
+     *
+     * @return string|null
+     */
+    public function connection()
+    {
+        return 'log';
+    }
+}
+{
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $board;

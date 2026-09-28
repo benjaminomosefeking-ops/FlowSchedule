@@ -49,7 +49,7 @@ class RegisteredUserController extends Controller
         Auth::login($user);
 
         // Send welcome notification
-        $user->notify(new UserRegisters());
+        // $user->notify(new UserRegisters());
 
         return redirect(route('dashboard', absolute: false));
     }
