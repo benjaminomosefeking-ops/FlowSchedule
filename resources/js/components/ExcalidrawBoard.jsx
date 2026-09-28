@@ -5,6 +5,7 @@ import React, {
     useEffect,
     useRef,
 } from "react";
+import { flushSync } from "react-dom";
 import {
     Pencil,
     Pen,
@@ -1332,7 +1333,9 @@ export default function ExcalidrawBoard({
     // Texto: el clic se guarda al pulsar y la caja se crea al soltar, para que
     // el foco que da el navegador al hacer clic no le quite el cursor al texto.
     const textDownRef = useRef(null);
-    const pendingFocusTextRef = useRef(null);
+    // Toque/arrastre sobre un texto ya colocado (distingue "editar" de "mover").
+    const textTapRef = useRef(null);
+    const lastTextTapRef = useRef({ id: null, time: 0 });
 
     const [strokes, setStrokes] = useState([]);
     const [currentStroke, setCurrentStroke] = useState(null);
@@ -1381,6 +1384,21 @@ export default function ExcalidrawBoard({
     useEffect(() => {
         viewportRef.current = viewport;
     }, [viewport]);
+
+    // Al pulsar en cualquier sitio fuera del texto que se está editando, se
+    // quita el foco: el texto queda fijado en la pizarra (y si está vacío, se borra).
+    useEffect(() => {
+        const onPointerDownCapture = (e) => {
+            const active = document.activeElement;
+            if (!active || active.tagName !== "TEXTAREA") return;
+            const wrap = active.closest?.("[data-text-wrapper]");
+            if (!wrap || wrap.contains(e.target)) return;
+            active.blur();
+        };
+        window.addEventListener("pointerdown", onPointerDownCapture, true);
+        return () =>
+            window.removeEventListener("pointerdown", onPointerDownCapture, true);
+    }, []);
 
     useEffect(() => {
         const tool = DRAWING_TOOLS[drawingTool];
@@ -2035,6 +2053,31 @@ export default function ExcalidrawBoard({
         }
     }, []);
 
+    // Fin de un toque/arrastre sobre un texto colocado: si casi no se movió es
+    // un toque (edita; dos toques seguidos abren los ajustes); si se movió, fue
+    // un arrastre y el texto ya está en su nueva posición.
+    const endTextDrag = useCallback(
+        (event, itemId) => {
+            const tap = textTapRef.current;
+            textTapRef.current = null;
+            onDragEnd(event);
+
+            if (!tap || tap.pointerId !== event.pointerId || tap.id !== itemId) return;
+            if (event.type !== "pointerup") return;
+            if (Math.hypot(event.clientX - tap.x, event.clientY - tap.y) > 6) return;
+
+            const now = Date.now();
+            const last = lastTextTapRef.current;
+            const isDouble = last.id === itemId && now - last.time < 350;
+            lastTextTapRef.current = { id: itemId, time: now };
+
+            // Foco síncrono dentro del gesto: abre el teclado en móvil
+            event.currentTarget.querySelector("textarea")?.focus();
+            if (isDouble) setTextToolsId(itemId);
+        },
+        [onDragEnd],
+    );
+
     const beginResize = useCallback((event, item, setter, options) => {
         event.stopPropagation();
         event.currentTarget.setPointerCapture?.(event.pointerId);
@@ -2160,34 +2203,48 @@ export default function ExcalidrawBoard({
         setCalendars((prev) => prev.filter((c) => c.id !== id));
     }, []);
 
-    // Crea texto "de verdad" directamente sobre la pizarra: sin caja, sin
-    // borde y sin barra de controles. Solo aparece el cursor parpadeante (|)
-    // justo donde se ha hecho clic, con la fuente/color de la barra de
-    // herramientas. Si se deja vacío y se hace clic fuera, se borra solo.
+    // Crea texto "de verdad" directamente sobre la pizarra: sin caja ni barra
+    // de controles, solo el cursor parpadeante justo donde se ha hecho clic,
+    // con la fuente/color de la barra de herramientas. Enter o tocar fuera lo
+    // fija; si se deja vacío, se borra solo. flushSync renderiza la caja al
+    // instante para poder darle el foco dentro del mismo gesto del usuario
+    // (así el teclado del móvil sí se abre).
     const addTextBoxAt = useCallback(
         (point) => {
             zCounterRef.current += 1;
             const id = `text-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-            pendingFocusTextRef.current = id;
-            setTexts((prev) => [
-                ...prev,
-                {
-                    id,
-                    // El cursor queda en el punto exacto del clic.
-                    x: point.x,
-                    y: point.y - (DEFAULT_TEXT_SIZE * TEXT_LINE_HEIGHT) / 2,
-                    text: "",
-                    font: textFont,
-                    color: textColor,
-                    size: DEFAULT_TEXT_SIZE,
-                    z: zCounterRef.current,
-                },
-            ]);
-            setActiveTextId(id);
-            setTextToolsId(null);
-            // Vuelve a la herramienta de dibujo tras colocar el texto para no
-            // crear cajas nuevas accidentalmente al seguir tocando el lienzo.
-            setMode("draw");
+            const z = zCounterRef.current;
+
+            flushSync(() => {
+                setTexts((prev) => [
+                    ...prev,
+                    {
+                        id,
+                        // El cursor queda en el punto exacto del clic.
+                        x: point.x,
+                        y: point.y - (DEFAULT_TEXT_SIZE * TEXT_LINE_HEIGHT) / 2,
+                        text: "",
+                        font: textFont,
+                        color: textColor,
+                        size: DEFAULT_TEXT_SIZE,
+                        z,
+                    },
+                ]);
+                setActiveTextId(id);
+                setTextToolsId(null);
+                // Vuelve a la herramienta de dibujo tras colocar el texto para no
+                // crear cajas nuevas accidentalmente al seguir tocando el lienzo.
+                setMode("draw");
+            });
+
+            const el = containerRef.current?.querySelector(
+                `[data-text-id="${id}"] textarea`,
+            );
+            el?.focus();
+            // Por si el navegador ignora el primer foco
+            requestAnimationFrame(() => {
+                if (el && document.activeElement !== el) el.focus();
+            });
         },
         [textFont, textColor],
     );
@@ -2361,6 +2418,7 @@ export default function ExcalidrawBoard({
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+        flexShrink: 0,
         boxShadow: active ? "0 3px 8px rgba(26,29,36,0.28)" : "none",
         transition: "background 0.16s ease, color 0.16s ease, transform 0.08s ease, box-shadow 0.16s ease",
     });
@@ -2422,12 +2480,24 @@ export default function ExcalidrawBoard({
                 .ebx-btn:active { transform: scale(0.93); }
                 .ebx-btn:focus-visible { outline: 2px solid var(--ink, #1A1D24); outline-offset: 1px; }
                 .ebx-btn-active:hover { background: var(--ink, #1A1D24); filter: brightness(1.08); }
+                .ebx-btn:disabled { cursor: not-allowed; }
+                .ebx-btn:disabled:hover { background: transparent; }
                 .ebx-swatch { transition: transform 0.12s ease, box-shadow 0.12s ease; }
                 .ebx-swatch:hover { transform: scale(1.18); }
                 .ebx-swatch:active { transform: scale(0.94); }
                 .ebx-popup-btn:hover { filter: brightness(1.12); }
                 .ebx-card { transition: box-shadow 0.18s ease, transform 0.18s ease; }
                 .ebx-card:hover { box-shadow: 0 2px 4px rgba(26,29,36,0.10), 0 16px 34px rgba(26,29,36,0.18); }
+
+                /* Toolbar: una sola fila con scroll horizontal en pantallas pequeñas */
+                .ebx-toolbar { scrollbar-width: none; }
+                .ebx-toolbar::-webkit-scrollbar { display: none; }
+                .ebx-toolbar > * { flex-shrink: 0; }
+
+                /* Texto sobre la pizarra: se mueve pulsando y arrastrando */
+                .ebx-text-wrap { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+                .ebx-text-wrap:not(.is-editing):hover { outline: 1px dashed rgba(26,29,36,0.3); outline-offset: 2px; }
+                .ebx-text-wrap.is-editing { outline: 1px dashed rgba(26,29,36,0.5); outline-offset: 2px; }
 
                 /* Texto directo sobre la pizarra: sin caja ni borde. El <textarea>
                    se superpone a una copia invisible del texto, así que crece solo
@@ -2512,13 +2582,38 @@ export default function ExcalidrawBoard({
                     return (
                         <div
                             key={item.id}
+                            data-text-id={item.id}
+                            data-text-wrapper="true"
+                            className={`ebx-text-wrap${isActive ? " is-editing" : ""}`}
                             style={{
                                 position: "absolute",
-                                left: item.x,
-                                top: item.y,
+                                // El padding da zona de agarre; el offset compensa para
+                                // que el texto quede justo donde se hizo clic.
+                                left: item.x - 6,
+                                top: item.y - 4,
+                                padding: "4px 6px",
                                 zIndex: isActive ? 9999 : item.z || 0,
                                 pointerEvents: "auto",
+                                cursor: isActive ? "text" : "grab",
+                                touchAction: isActive ? "auto" : "none",
                             }}
+                            onPointerDown={(e) => {
+                                // Ajustes y cursor dentro del texto: comportamiento normal
+                                if (e.target.closest?.("[data-text-tools]")) return;
+                                if (e.target.tagName === "TEXTAREA") return;
+                                // Pulsar y arrastrar el texto (ratón o dedo) lo mueve
+                                e.preventDefault();
+                                textTapRef.current = {
+                                    id: item.id,
+                                    pointerId: e.pointerId,
+                                    x: e.clientX,
+                                    y: e.clientY,
+                                };
+                                beginDrag(e, item, setTexts);
+                            }}
+                            onPointerMove={onDragMove}
+                            onPointerUp={(e) => endTextDrag(e, item.id)}
+                            onPointerCancel={onDragEnd}
                             onFocus={() => setActiveTextId(item.id)}
                             onBlur={(e) => {
                                 if (e.currentTarget.contains(e.relatedTarget)) return;
@@ -2530,11 +2625,11 @@ export default function ExcalidrawBoard({
                             onDoubleClick={() => setTextToolsId(item.id)}
                         >
                             {/* Ajustes (mover / fuente / color / tamaño / eliminar):
-                                solo con doble clic sobre un texto ya escrito. Al
-                                escribir uno nuevo no aparece nada más que el cursor. */}
+                                solo con doble clic o doble toque sobre un texto. */}
                             {showTools && (
                                 <div
                                     data-export-ignore="true"
+                                    data-text-tools="true"
                                     style={{
                                         display: "flex",
                                         alignItems: "center",
@@ -2547,6 +2642,7 @@ export default function ExcalidrawBoard({
                                         boxShadow: cardShadow,
                                         width: "fit-content",
                                         fontFamily: "var(--font-body, sans-serif)",
+                                        cursor: "default",
                                     }}
                                 >
                                     <div
@@ -2569,11 +2665,9 @@ export default function ExcalidrawBoard({
                                             minWidth: 34,
                                             minHeight: 26,
                                             boxSizing: "border-box",
-                                            fontSize: 10,
                                             display: "flex",
                                             alignItems: "center",
                                             justifyContent: "center",
-                                            gap: 3,
                                         }}
                                     >
                                         <Move size={14} />
@@ -2652,20 +2746,18 @@ export default function ExcalidrawBoard({
                                     onChange={(e) => updateText(item.id, { text: e.target.value })}
                                     onFocus={() => bringToFront(item.id, setTexts)}
                                     onKeyDown={(e) => {
-                                        if (e.key === "Escape") e.currentTarget.blur();
-                                    }}
-                                    ref={(el) => {
-                                        // Pone el cursor en el texto recién creado.
-                                        // El pequeño retardo evita que el foco del clic
-                                        // del navegador se lo quite de nuevo.
-                                        if (el && pendingFocusTextRef.current === item.id) {
-                                            pendingFocusTextRef.current = null;
-                                            setTimeout(() => el.focus(), 30);
+                                        if (e.nativeEvent.isComposing) return;
+                                        // Enter o Escape: fija el texto. Shift+Enter: salto de línea.
+                                        if (e.key === "Escape" || (e.key === "Enter" && !e.shiftKey)) {
+                                            e.preventDefault();
+                                            e.currentTarget.blur();
                                         }
                                     }}
                                     rows={1}
                                     spellCheck={false}
                                     autoComplete="off"
+                                    enterKeyHint="done"
+                                    style={{ pointerEvents: isActive ? "auto" : "none" }}
                                 />
                             </div>
                         </div>
@@ -3286,7 +3378,7 @@ export default function ExcalidrawBoard({
                 style={{
                     position: "fixed",
                     left: "50%",
-                    bottom: 16,
+                    bottom: "calc(16px + env(safe-area-inset-bottom, 0px))",
                     transform: "translateX(-50%)",
                     zIndex: 20,
                     display: "flex",
@@ -3300,8 +3392,11 @@ export default function ExcalidrawBoard({
                     padding: 7,
                     boxShadow: "0 1px 2px rgba(26,29,36,0.10), 0 14px 32px rgba(26,29,36,0.18)",
                     maxWidth: "calc(100vw - 24px)",
-                    flexWrap: "wrap",
-                    rowGap: 4,
+                    overflowX: "auto",
+                    overflowY: "hidden",
+                    flexWrap: "nowrap",
+                    overscrollBehavior: "contain",
+                    WebkitOverflowScrolling: "touch",
                 }}
             >
                 <button
@@ -3481,7 +3576,9 @@ export default function ExcalidrawBoard({
                                     }}
                                 />
                             </label>
-                            <span style={{ fontSize: 10, color: "var(--pencil, #6B6660)" }}>Toca el lienzo y escribe</span>
+                            <span style={{ fontSize: 10, color: "var(--pencil, #6B6660)", whiteSpace: "nowrap" }}>
+                                Toca el lienzo y escribe · Enter para fijar
+                            </span>
                         </div>
                     </>
                 )}
@@ -3622,10 +3719,13 @@ export default function ExcalidrawBoard({
                     className="ebx-popup ebx-table-popup"
                     data-export-ignore="true"
                     style={{
-                        position: "absolute",
+                        position: "fixed",
                         left: "50%",
-                        top: 68,
+                        bottom: "calc(84px + env(safe-area-inset-bottom, 0px))",
                         transform: "translateX(-50%)",
+                        maxWidth: "calc(100vw - 24px)",
+                        flexWrap: "wrap",
+                        justifyContent: "center",
                         zIndex: 21,
                         background: "var(--paper, #F2EBDC)",
                         border: cardBorder,
@@ -3690,10 +3790,13 @@ export default function ExcalidrawBoard({
                     className="ebx-popup ebx-calendar-popup"
                     data-export-ignore="true"
                     style={{
-                        position: "absolute",
+                        position: "fixed",
                         left: "50%",
-                        top: 68,
+                        bottom: "calc(84px + env(safe-area-inset-bottom, 0px))",
                         transform: "translateX(-50%)",
+                        maxWidth: "calc(100vw - 24px)",
+                        flexWrap: "wrap",
+                        justifyContent: "center",
                         zIndex: 21,
                         background: "var(--paper, #F2EBDC)",
                         border: cardBorder,

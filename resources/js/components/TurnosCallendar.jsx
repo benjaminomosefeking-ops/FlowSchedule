@@ -60,12 +60,14 @@ const formatLongDate = (d) =>
         year: "numeric",
     }).format(d);
 
-// Animation constants following Emil's principles
-const ANIMATION_CONFIG = {
-    buttonPress: { scale: 0.97, duration: 100 },
-    buttonHover: { scale: 1.02, duration: 150 },
-    modalEase: [0.23, 1, 0.32, 1], // Custom ease-out for UI interactions
-    cardHoverEase: [0.77, 0, 0.175, 1], // Custom ease-in-out for on-screen movement
+// Cabeceras comunes para las peticiones (el CSRF solo se envía si existe)
+const buildHeaders = (withBody) => {
+    const csrf = document.querySelector('meta[name="csrf-token"]')?.content;
+    return {
+        Accept: "application/json",
+        ...(withBody ? { "Content-Type": "application/json" } : {}),
+        ...(csrf ? { "X-CSRF-TOKEN": csrf } : {}),
+    };
 };
 
 // ---------- drawing canvas ----------
@@ -126,11 +128,12 @@ function DrawPad({ value, onChange }) {
         const { x, y } = getPos(e);
         ctx.lineCap = "round";
         ctx.lineJoin = "round";
+        ctx.globalCompositeOperation = "source-over";
         if (toolRef.current === "eraser") {
-            ctx.globalCompositeOperation = "destination-out";
+            // Pinta en blanco (antes borraba a transparente y el PNG guardado quedaba con huecos)
+            ctx.strokeStyle = "#FFFFFF";
             ctx.lineWidth = 24;
         } else {
-            ctx.globalCompositeOperation = "source-over";
             ctx.strokeStyle = "#1A1A1A";
             ctx.lineWidth = 3;
         }
@@ -148,6 +151,7 @@ function DrawPad({ value, onChange }) {
     const clear = () => {
         const canvas = canvasRef.current;
         const ctx = canvas.getContext("2d");
+        ctx.globalCompositeOperation = "source-over";
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = "#FFFFFF";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -161,7 +165,6 @@ function DrawPad({ value, onChange }) {
                     onClick={() => setTool("pencil")}
                     style={toolBtnStyle(tool === "pencil")}
                     type="button"
-                    // Emil-inspired: enhanced button feedback
                     onMouseEnter={(e) => {
                         e.currentTarget.style.transform = "scale(1.02)";
                         e.currentTarget.style.background = "var(--ink)";
@@ -187,7 +190,6 @@ function DrawPad({ value, onChange }) {
                     onClick={() => setTool("eraser")}
                     style={toolBtnStyle(tool === "eraser")}
                     type="button"
-                    // Emil-inspired: enhanced button feedback
                     onMouseEnter={(e) => {
                         e.currentTarget.style.transform = "scale(1.02)";
                         e.currentTarget.style.background = "var(--ink)";
@@ -216,7 +218,6 @@ function DrawPad({ value, onChange }) {
                         marginLeft: "auto",
                         color: "#B23A3A",
                     }}
-                    // Emil-inspired: enhanced button feedback for danger action
                     onMouseEnter={(e) => {
                         e.currentTarget.style.transform = "scale(1.02)";
                         e.currentTarget.style.background = "#B23A3A";
@@ -246,7 +247,6 @@ function DrawPad({ value, onChange }) {
                     width: "100%",
                     overflow: "hidden",
                     lineHeight: 0,
-                    // Emil-inspired: subtle elevation
                     boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
                     transition: "box-shadow 0.2s ease",
                 }}
@@ -267,11 +267,13 @@ function DrawPad({ value, onChange }) {
                         width: "100%",
                         height: "180px",
                         display: "block",
+                        touchAction: "none",
                         cursor: tool === "eraser" ? "cell" : "crosshair",
                     }}
                     onPointerDown={start}
                     onPointerMove={move}
                     onPointerUp={end}
+                    onPointerCancel={end}
                     onPointerLeave={end}
                 />
             </div>
@@ -303,9 +305,8 @@ const toolBtnStyle = (active) => ({
     transition: "all 0.16s ease",
 });
 
-// ---------- day editor modal ----------
+// ---------- estilos compartidos ----------
 
-// Missing style definitions
 const labelStyle = {
     display: "block",
     fontSize: "0.72rem",
@@ -352,101 +353,133 @@ const navBtnStyle = {
     justifyContent: "center",
 };
 
+// ---------- day editor modal ----------
 
 function DayModal({ date, entry, onChange, onClear, onClose }) {
-    const [title, setTitle]     = useState(entry?.title || '');
-    const [note, setNote]       = useState(entry?.note || '');
-    const [color, setColor]     = useState(entry?.color || null);
+    const [title, setTitle] = useState(entry?.title || "");
+    const [note, setNote] = useState(entry?.note || "");
+    const [color, setColor] = useState(entry?.color || null);
     const [drawing, setDrawing] = useState(entry?.drawing || null);
     const [visible, setVisible] = useState(false);
 
-    // Bloquea el scroll del body + Escape + animación fiable de entrada
+    // Refs para no depender de closures obsoletas
+    const draftRef = useRef({ title, note, color, drawing });
+    const dirtyRef = useRef(false);
+    const timerRef = useRef(null);
+    const onChangeRef = useRef(onChange);
+    const onCloseRef = useRef(onClose);
+    onChangeRef.current = onChange;
+    onCloseRef.current = onClose;
+
+    // Guarda lo pendiente (si hay cambios)
+    const flush = useCallback(() => {
+        clearTimeout(timerRef.current);
+        if (!dirtyRef.current) return;
+        dirtyRef.current = false;
+        onChangeRef.current(draftRef.current);
+    }, []);
+
+    // Actualiza el borrador; guarda con debounce o al instante
+    const update = (patch, immediate = false) => {
+        draftRef.current = { ...draftRef.current, ...patch };
+        dirtyRef.current = true;
+        clearTimeout(timerRef.current);
+        if (immediate) flush();
+        else timerRef.current = setTimeout(flush, 600);
+    };
+
+    // Cierra SIEMPRE guardando lo pendiente
+    const handleClose = useCallback(() => {
+        flush();
+        onCloseRef.current();
+    }, [flush]);
+
+    // Red de seguridad: si se desmonta con cambios pendientes, guardar
+    useEffect(() => () => flush(), [flush]);
+
+    // Bloquea el scroll del body + Escape + animación de entrada
     useEffect(() => {
         const prevOverflow = document.body.style.overflow;
-        document.body.style.overflow = 'hidden';
+        document.body.style.overflow = "hidden";
 
         const raf = requestAnimationFrame(() => setVisible(true));
 
         const onKey = (e) => {
-            if (e.key === 'Escape') onClose();
+            if (e.key === "Escape") handleClose();
         };
-        window.addEventListener('keydown', onKey);
+        window.addEventListener("keydown", onKey);
 
         return () => {
             cancelAnimationFrame(raf);
             document.body.style.overflow = prevOverflow;
-            window.removeEventListener('keydown', onKey);
+            window.removeEventListener("keydown", onKey);
         };
-    }, [onClose]);
-
-    const commit = (patch) => {
-        onChange({ title, note, color, drawing, ...patch });
-    };
+    }, [handleClose]);
 
     const modal = (
         <div
-            onClick={onClose}
+            onClick={handleClose}
             style={{
-                position: 'fixed',
+                position: "fixed",
                 inset: 0,
-                background: 'rgba(26,26,26,0.55)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                background: "rgba(26,26,26,0.55)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
                 zIndex: 9999,
-                padding: '16px',
+                padding: "16px",
                 opacity: visible ? 1 : 0,
-                transition: 'opacity 200ms cubic-bezier(0.23,1,0.32,1)',
+                transition: "opacity 200ms cubic-bezier(0.23,1,0.32,1)",
             }}
         >
             <div
                 onClick={(e) => e.stopPropagation()}
                 style={{
-                    background: 'var(--paper)',
-                    border: '3px solid var(--ink)',
-                    boxShadow: '10px 10px 0 var(--ink)',
-                    width: '100%',
-                    maxWidth: '460px',
-                    maxHeight: '90vh',
-                    overflowY: 'auto',
-                    padding: '24px',
-                    transform: visible ? 'scale(1)' : 'scale(0.96)',
+                    background: "var(--paper)",
+                    border: "3px solid var(--ink)",
+                    boxShadow: "10px 10px 0 var(--ink)",
+                    width: "100%",
+                    maxWidth: "460px",
+                    maxHeight: "90vh",
+                    overflowY: "auto",
+                    padding: "24px",
+                    transform: visible ? "scale(1)" : "scale(0.96)",
                     transition:
-                        'transform 200ms cubic-bezier(0.23,1,0.32,1), box-shadow 200ms ease',
+                        "transform 200ms cubic-bezier(0.23,1,0.32,1), box-shadow 200ms ease",
                 }}
                 onMouseEnter={(e) => {
-                    e.currentTarget.style.boxShadow = '12px 12px 0 var(--ink)';
+                    e.currentTarget.style.boxShadow = "12px 12px 0 var(--ink)";
                 }}
                 onMouseLeave={(e) => {
-                    e.currentTarget.style.boxShadow = '10px 10px 0 var(--ink)';
+                    e.currentTarget.style.boxShadow = "10px 10px 0 var(--ink)";
                 }}
             >
                 <div
                     style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'flex-start',
-                        marginBottom: '18px',
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "flex-start",
+                        marginBottom: "18px",
                     }}
                 >
                     <h2
                         style={{
-                            fontFamily: 'var(--font-display)',
-                            fontSize: '1.3rem',
+                            fontFamily: "var(--font-display)",
+                            fontSize: "1.3rem",
                             margin: 0,
-                            textTransform: 'capitalize',
+                            textTransform: "capitalize",
                         }}
                     >
                         {formatLongDate(date)}
                     </h2>
                     <button
                         type="button"
-                        onClick={onClose}
+                        onClick={handleClose}
                         style={{
-                            background: 'none',
-                            border: 'none',
-                            cursor: 'pointer',
-                            color: 'var(--ink)',
+                            background: "none",
+                            border: "none",
+                            cursor: "pointer",
+                            color: "var(--ink)",
                         }}
                     >
                         <X size={22} />
@@ -459,31 +492,32 @@ function DayModal({ date, entry, onChange, onClear, onClose }) {
                     maxLength={60}
                     onChange={(e) => {
                         setTitle(e.target.value);
+                        update({ title: e.target.value });
                     }}
                     onBlur={(e) => {
-                        commit({ title });
-                        e.target.style.borderColor = 'var(--ink)';
-                        e.target.style.boxShadow = 'none';
+                        flush();
+                        e.target.style.borderColor = "var(--ink)";
+                        e.target.style.boxShadow = "none";
                     }}
                     placeholder="Ej. Dia de descanso"
                     style={inputStyle}
                     onFocus={(e) => {
-                        e.target.style.borderColor = 'var(--blue)';
+                        e.target.style.borderColor = "var(--blue)";
                         e.target.style.boxShadow =
-                            '0 0 0 2px rgba(59,110,165,0.2)';
+                            "0 0 0 2px rgba(59,110,165,0.2)";
                     }}
                 />
 
                 <div
                     style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        marginTop: '14px',
+                        display: "flex",
+                        justifyContent: "space-between",
+                        marginTop: "14px",
                     }}
                 >
                     <label style={labelStyle}>Nota</label>
                     <span
-                        style={{ fontSize: '0.7rem', color: 'var(--pencil)' }}
+                        style={{ fontSize: "0.7rem", color: "var(--pencil)" }}
                     >
                         {note.length}/200
                     </span>
@@ -491,75 +525,78 @@ function DayModal({ date, entry, onChange, onClear, onClose }) {
                 <textarea
                     value={note}
                     maxLength={200}
-                    onChange={(e) => setNote(e.target.value)}
+                    onChange={(e) => {
+                        setNote(e.target.value);
+                        update({ note: e.target.value });
+                    }}
                     onBlur={(e) => {
-                        commit({ note });
-                        e.target.style.borderColor = 'var(--ink)';
-                        e.target.style.boxShadow = 'none';
+                        flush();
+                        e.target.style.borderColor = "var(--ink)";
+                        e.target.style.boxShadow = "none";
                     }}
                     rows={3}
                     placeholder="Escribe hasta 200 caracteres…"
                     style={{
                         ...inputStyle,
-                        resize: 'vertical',
-                        fontFamily: 'var(--font-sans)',
+                        resize: "vertical",
+                        fontFamily: "var(--font-sans)",
                     }}
                     onFocus={(e) => {
-                        e.target.style.borderColor = 'var(--blue)';
+                        e.target.style.borderColor = "var(--blue)";
                         e.target.style.boxShadow =
-                            '0 0 0 2px rgba(59,110,165,0.2)';
+                            "0 0 0 2px rgba(59,110,165,0.2)";
                     }}
                 />
 
                 <label
                     style={{
                         ...labelStyle,
-                        marginTop: '14px',
-                        display: 'block',
+                        marginTop: "14px",
+                        display: "block",
                     }}
                 >
                     Color del día
                 </label>
                 <div
                     style={{
-                        display: 'flex',
-                        flexWrap: 'wrap',
-                        gap: '8px',
-                        alignItems: 'center',
-                        marginBottom: '18px',
+                        display: "flex",
+                        flexWrap: "wrap",
+                        gap: "8px",
+                        alignItems: "center",
+                        marginBottom: "18px",
                     }}
                 >
                     <button
                         type="button"
                         onClick={() => {
                             setColor(null);
-                            commit({ color: null });
+                            update({ color: null }, true);
                         }}
                         title="Sin color"
                         style={{
-                            width: '28px',
-                            height: '28px',
-                            borderRadius: '50%',
-                            border: `2px solid ${!color ? 'var(--ink)' : '#ccc'}`,
+                            width: "28px",
+                            height: "28px",
+                            borderRadius: "50%",
+                            border: `2px solid ${!color ? "var(--ink)" : "#ccc"}`,
                             background:
-                                'repeating-linear-gradient(45deg,#fff,#fff 3px,#eee 3px,#eee 6px)',
-                            cursor: 'pointer',
+                                "repeating-linear-gradient(45deg,#fff,#fff 3px,#eee 3px,#eee 6px)",
+                            cursor: "pointer",
                             boxShadow: !color
-                                ? '0 0 0 2px var(--paper), 0 0 0 3px var(--ink)'
-                                : 'none',
-                            transition: 'all 0.16s ease',
+                                ? "0 0 0 2px var(--paper), 0 0 0 3px var(--ink)"
+                                : "none",
+                            transition: "all 0.16s ease",
                         }}
                         onMouseEnter={(e) => {
-                            e.currentTarget.style.transform = 'scale(1.05)';
+                            e.currentTarget.style.transform = "scale(1.05)";
                             e.currentTarget.style.boxShadow = !color
-                                ? '0 0 0 3px var(--paper), 0 0 0 4px var(--ink)'
-                                : 'none';
+                                ? "0 0 0 3px var(--paper), 0 0 0 4px var(--ink)"
+                                : "none";
                         }}
                         onMouseLeave={(e) => {
-                            e.currentTarget.style.transform = 'scale(1)';
+                            e.currentTarget.style.transform = "scale(1)";
                             e.currentTarget.style.boxShadow = !color
-                                ? '0 0 0 2px var(--paper), 0 0 0 3px var(--ink)'
-                                : 'none';
+                                ? "0 0 0 2px var(--paper), 0 0 0 3px var(--ink)"
+                                : "none";
                         }}
                     />
                     {COLORS.map((c) => (
@@ -568,68 +605,69 @@ function DayModal({ date, entry, onChange, onClear, onClose }) {
                             key={c.value}
                             onClick={() => {
                                 setColor(c.value);
-                                commit({ color: c.value });
+                                update({ color: c.value }, true);
                             }}
                             title={c.name}
                             style={{
-                                width: '28px',
-                                height: '28px',
-                                borderRadius: '50%',
+                                width: "28px",
+                                height: "28px",
+                                borderRadius: "50%",
                                 background: c.value,
-                                border: '2px solid var(--ink)',
-                                cursor: 'pointer',
+                                border: "2px solid var(--ink)",
+                                cursor: "pointer",
                                 boxShadow:
                                     color === c.value
-                                        ? '0 0 0 2px var(--paper), 0 0 0 3px var(--ink)'
-                                        : 'none',
-                                transition: 'all 0.16s ease',
+                                        ? "0 0 0 2px var(--paper), 0 0 0 3px var(--ink)"
+                                        : "none",
+                                transition: "all 0.16s ease",
                             }}
                             onMouseEnter={(e) => {
-                                e.currentTarget.style.transform = 'scale(1.05)';
+                                e.currentTarget.style.transform = "scale(1.05)";
                                 e.currentTarget.style.boxShadow =
                                     color === c.value
-                                        ? '0 0 0 3px var(--paper), 0 0 0 4px var(--ink)'
-                                        : 'none';
+                                        ? "0 0 0 3px var(--paper), 0 0 0 4px var(--ink)"
+                                        : "none";
                             }}
                             onMouseLeave={(e) => {
-                                e.currentTarget.style.transform = 'scale(1)';
+                                e.currentTarget.style.transform = "scale(1)";
                                 e.currentTarget.style.boxShadow =
                                     color === c.value
-                                        ? '0 0 0 2px var(--paper), 0 0 0 3px var(--ink)'
-                                        : 'none';
+                                        ? "0 0 0 2px var(--paper), 0 0 0 3px var(--ink)"
+                                        : "none";
                             }}
                         />
                     ))}
                     <label
                         title="Elegir cualquier color"
                         style={{
-                            width: '28px',
-                            height: '28px',
-                            borderRadius: '50%',
-                            border: '2px dashed var(--ink)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            cursor: 'pointer',
-                            position: 'relative',
-                            overflow: 'hidden',
-                            fontSize: '14px',
-                            color: 'var(--ink)',
+                            width: "28px",
+                            height: "28px",
+                            borderRadius: "50%",
+                            border: "2px dashed var(--ink)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            cursor: "pointer",
+                            position: "relative",
+                            overflow: "hidden",
+                            fontSize: "14px",
+                            color: "var(--ink)",
                         }}
                     >
                         +
                         <input
                             type="color"
-                            value={color || '#3B6EA5'}
+                            value={color || "#3B6EA5"}
                             onChange={(e) => {
                                 setColor(e.target.value);
-                                commit({ color: e.target.value });
+                                // El selector dispara muchos eventos: usamos debounce
+                                update({ color: e.target.value });
                             }}
                             style={{
-                                position: 'absolute',
+                                position: "absolute",
                                 inset: 0,
                                 opacity: 0,
-                                cursor: 'pointer',
+                                cursor: "pointer",
                             }}
                         />
                     </label>
@@ -638,8 +676,8 @@ function DayModal({ date, entry, onChange, onClear, onClose }) {
                 <label
                     style={{
                         ...labelStyle,
-                        display: 'block',
-                        marginBottom: '6px',
+                        display: "block",
+                        marginBottom: "6px",
                     }}
                 >
                     Dibujo
@@ -648,64 +686,67 @@ function DayModal({ date, entry, onChange, onClear, onClose }) {
                     value={drawing}
                     onChange={(d) => {
                         setDrawing(d);
-                        commit({ drawing: d });
+                        update({ drawing: d }, true);
                     }}
                 />
 
                 <div
-                    style={{ display: 'flex', gap: '10px', marginTop: '20px' }}
+                    style={{ display: "flex", gap: "10px", marginTop: "20px" }}
                 >
                     <button
                         type="button"
                         onClick={() => {
+                            // Cancela cualquier guardado pendiente para que no recree la entrada
+                            clearTimeout(timerRef.current);
+                            dirtyRef.current = false;
                             onClear();
-                            onClose();
+                            onCloseRef.current();
                         }}
                         style={{
                             ...btnStyle,
-                            color: '#B23A3A',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '6px',
+                            color: "#B23A3A",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "6px",
                         }}
                         onMouseEnter={(e) => {
-                            e.currentTarget.style.transform = 'scale(1.03)';
-                            e.currentTarget.style.background = '#e53e3e';
-                            e.currentTarget.style.color = 'white';
+                            e.currentTarget.style.transform = "scale(1.03)";
+                            e.currentTarget.style.background = "#e53e3e";
+                            e.currentTarget.style.color = "white";
                         }}
                         onMouseLeave={(e) => {
-                            e.currentTarget.style.transform = 'scale(1)';
-                            e.currentTarget.style.background = 'var(--paper)';
-                            e.currentTarget.style.color = '#B23A3A';
+                            e.currentTarget.style.transform = "scale(1)";
+                            e.currentTarget.style.background = "var(--paper)";
+                            e.currentTarget.style.color = "#B23A3A";
                         }}
                         onMouseDown={(e) => {
-                            e.currentTarget.style.transform = 'scale(0.95)';
+                            e.currentTarget.style.transform = "scale(0.95)";
                         }}
                         onMouseUp={(e) => {
-                            e.currentTarget.style.transform = 'scale(1.03)';
+                            e.currentTarget.style.transform = "scale(1.03)";
                         }}
                     >
                         <Trash2 size={14} /> Eliminar día
                     </button>
                     <button
                         type="button"
-                        onClick={onClose}
-                        style={{ ...btnStyle, marginLeft: 'auto' }}
+                        onClick={handleClose}
+                        style={{ ...btnStyle, marginLeft: "auto" }}
                         onMouseEnter={(e) => {
-                            e.currentTarget.style.transform = 'scale(1.02)';
-                            e.currentTarget.style.background = 'var(--blue)';
-                            e.currentTarget.style.color = 'var(--paper)';
+                            e.currentTarget.style.transform = "scale(1.02)";
+                            e.currentTarget.style.background = "var(--blue)";
+                            e.currentTarget.style.color = "var(--paper)";
                         }}
                         onMouseLeave={(e) => {
-                            e.currentTarget.style.transform = 'scale(1)';
-                            e.currentTarget.style.background = 'var(--paper)';
-                            e.currentTarget.style.color = 'var(--ink)';
+                            e.currentTarget.style.transform = "scale(1)";
+                            e.currentTarget.style.background = "var(--paper)";
+                            e.currentTarget.style.color = "var(--ink)";
                         }}
                         onMouseDown={(e) => {
-                            e.currentTarget.style.transform = 'scale(0.96)';
+                            e.currentTarget.style.transform = "scale(0.96)";
                         }}
                         onMouseUp={(e) => {
-                            e.currentTarget.style.transform = 'scale(1.02)';
+                            e.currentTarget.style.transform = "scale(1.02)";
                         }}
                     >
                         Cerrar
@@ -725,13 +766,12 @@ export default function FullCalendar() {
     const [viewDate, setViewDate] = useState(new Date());
     const [data, setData] = useState({});
     const [activeKey, setActiveKey] = useState(null);
-    const [saveStatus, setSaveStatus] = useState("idle"); 
+    const [saveStatus, setSaveStatus] = useState("idle");
 
+    // dataRef siempre tiene la versión más reciente (se actualiza de forma síncrona)
     const dataRef = useRef(data);
-    useEffect(() => {
-        dataRef.current = data;
-    }, [data]);
 
+    // Carga inicial: fusiona sin pisar lo que se haya editado mientras tanto
     useEffect(() => {
         let mounted = true;
         (async () => {
@@ -743,7 +783,11 @@ export default function FullCalendar() {
                     throw new Error("No se pudieron cargar los eventos");
                 const events = await res.json();
                 if (mounted) {
-                    setData(events);
+                    // Laravel devuelve [] cuando está vacío
+                    const safe = Array.isArray(events) ? {} : events;
+                    const merged = { ...safe, ...dataRef.current };
+                    dataRef.current = merged;
+                    setData(merged);
                 }
             } catch (_) {
                 if (mounted) setSaveStatus("error");
@@ -757,16 +801,9 @@ export default function FullCalendar() {
     const persistEntry = useCallback(async (key, entry) => {
         setSaveStatus("saving");
         try {
-            const csrf = document.querySelector(
-                'meta[name="csrf-token"]',
-            )?.content;
             const res = await fetch(`/calendar/events/${key}`, {
                 method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
-                    "X-CSRF-TOKEN": csrf,
-                },
+                headers: buildHeaders(true),
                 body: JSON.stringify(entry),
             });
             if (!res.ok) throw new Error("No se pudo guardar el evento");
@@ -812,16 +849,15 @@ export default function FullCalendar() {
     }, [year, month]);
 
     const clearEntry = useCallback((key) => {
-        setData((prev) => {
-            const next = { ...prev };
-            delete next[key];
-            return next;
-        });
-        const csrf = document.querySelector('meta[name="csrf-token"]')?.content;
+        const next = { ...dataRef.current };
+        delete next[key];
+        dataRef.current = next;
+        setData(next);
+
         setSaveStatus("saving");
         fetch(`/calendar/events/${key}`, {
             method: "DELETE",
-            headers: { Accept: "application/json", "X-CSRF-TOKEN": csrf },
+            headers: buildHeaders(false),
         })
             .then((res) => {
                 if (!res.ok) throw new Error("No se pudo eliminar el evento");
@@ -845,9 +881,8 @@ export default function FullCalendar() {
                 return;
             }
 
-            setData((prev) => {
-                return { ...prev, [key]: nextEntry };
-            });
+            dataRef.current = { ...dataRef.current, [key]: nextEntry };
+            setData(dataRef.current);
             persistEntry(key, nextEntry);
         },
         [clearEntry, persistEntry],
@@ -882,8 +917,6 @@ export default function FullCalendar() {
                 boxSizing: "border-box",
                 padding: "clamp(16px, 3vw, 40px)",
                 fontFamily: "var(--font-sans)",
-                // Emil-inspired: subtle page elevation
-                minHeight: "100vh",
                 position: "relative",
                 overflowX: "hidden",
             }}
@@ -893,45 +926,15 @@ export default function FullCalendar() {
         * { box-sizing: border-box; }
         .cal-cell:hover { transform: translate(-1px,-1px); box-shadow: 5px 5px 0 var(--ink) !important; }
 
-        // Emil-inspired: enhanced animations
-        @keyframes modalFadeIn {
-          from {
-            opacity: 0;
-            transform: scale(0.95);
-          }
-          to {
-            opacity: 1;
-            transform: scale(1);
-          }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
         }
+        .spin { animation: spin 0.8s linear infinite; }
 
-        @keyframes cardLift {
-          from {
-            transform: translateY(0);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-          }
-          to {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-          }
-        }
-
-        @keyframes buttonPress {
-          from {
-            transform: scale(1);
-          }
-          to {
-            transform: scale(0.96);
-          }
-        }
-
-        @keyframes buttonHover {
-          from {
-            transform: scale(1);
-          }
-          to {
-            transform: scale(1.02);
-          }
+        /* iOS hace zoom automático al enfocar campos con menos de 16px */
+        @media (max-width: 760px) {
+          input, textarea { font-size: 16px !important; }
         }
       `}</style>
 
@@ -947,7 +950,6 @@ export default function FullCalendar() {
                     paddingBottom: "20px",
                     borderBottom: "2px solid var(--ink)",
                     marginBottom: "24px",
-                    // Emil-inspired: subtle header elevation
                     position: "relative",
                     zIndex: 10,
                 }}
@@ -1025,7 +1027,6 @@ export default function FullCalendar() {
                             }
                             style={navBtnStyle}
                             title="Año anterior"
-                            // Emil-inspired: enhanced navigation button feedback
                             onMouseEnter={(e) => {
                                 e.currentTarget.style.transform =
                                     "translateX(-2px) scale(1.05)";
@@ -1057,7 +1058,6 @@ export default function FullCalendar() {
                             }
                             style={navBtnStyle}
                             title="Mes anterior"
-                            // Emil-inspired: enhanced navigation button feedback
                             onMouseEnter={(e) => {
                                 e.currentTarget.style.transform =
                                     "translateX(-2px) scale(1.05)";
@@ -1101,7 +1101,6 @@ export default function FullCalendar() {
                             }
                             style={navBtnStyle}
                             title="Mes siguiente"
-                            // Emil-inspired: enhanced navigation button feedback
                             onMouseEnter={(e) => {
                                 e.currentTarget.style.transform =
                                     "translateX(2px) scale(1.05)";
@@ -1133,7 +1132,6 @@ export default function FullCalendar() {
                             }
                             style={navBtnStyle}
                             title="Año siguiente"
-                            // Emil-inspired: enhanced navigation button feedback
                             onMouseEnter={(e) => {
                                 e.currentTarget.style.transform =
                                     "translateX(2px) scale(1.05)";
@@ -1257,7 +1255,6 @@ export default function FullCalendar() {
                                         boxShadow: "3px 3px 0 var(--ink)",
                                         transition:
                                             "transform 0.1s ease, box-shadow 0.1s ease",
-                                        // Emil-inspired: enhanced card interactions
                                         position: "relative",
                                     }}
                                 >
