@@ -98,9 +98,14 @@ php artisan test
 
 ## Screenshots
 
-- `docs/screenshots/dashboard.png`
-- `docs/screenshots/login.png`
-- `docs/screenshots/create-shift.png`
+### Dashboard
+![Dashboard](docs/screenshots/dashboard.png)
+
+### Create Shift
+![Create Shift](docs/screenshots/callendar.png)
+
+### Login
+![Login](docs/screenshots/boards.png)
 
 ## What I Learned
 
