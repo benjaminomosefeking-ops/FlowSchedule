@@ -57,8 +57,12 @@ RUN ln -s /etc/nginx/sites-available/app.conf /etc/nginx/sites-enabled/app.conf
 # Create supervisor configuration
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
+# Copy entrypoint script
+COPY docker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 # Expose port
 EXPOSE 8080
 
-# Start supervisor with port substitution
-CMD ["/bin/sh", "-c", "envsubst '${PORT}' < /etc/nginx/sites-available/app.conf > /tmp/nginx.conf && mv /tmp/nginx.conf /etc/nginx/sites-available/app.conf && /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf"]
+# Start with entrypoint (migrations + nginx + php-fpm)
+CMD ["/usr/local/bin/docker-entrypoint.sh"]
