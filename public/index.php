@@ -19,6 +19,4 @@ $app = require_once __DIR__.'/../bootstrap/app.php';
 
 $request = Request::capture();
 
-logger('Handling request: '.$request->getMethod().' '.$request->getPathInfo());
-
 $app->handleRequest($request);
